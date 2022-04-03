@@ -74,6 +74,11 @@ const middlewareController = {
         .isLength({ min: 6 })
         .withMessage('Password must be at least 6 characters')
     ],
+    validateCatalogRequest: [
+        check('name')
+        .notEmpty()
+        .withMessage('Name is required'),
+    ],
     isRequestValidated: (req, res, next) => {
         const errors = validationResult(req)
         if (errors.array().length > 0) {

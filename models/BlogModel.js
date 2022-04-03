@@ -15,7 +15,10 @@ const blogSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    attachment: String,
+    attachment: {
+        type: String,
+        required: true,
+    },
     likeCount: {
         type: Number,
         default: 0,

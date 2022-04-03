@@ -28,13 +28,24 @@ const blogController = {
     },
     createBlog: async(req, res) => {
         try {
-            const newBlog = req.body;
-            const blog = await new BlogModel(newBlog);
+            let attachmentUrl;
+            if (req.file) {
+                attachmentUrl = process.env.API + 'public/blogs/' + req.file.filename;
+            }
+            const { title, content, likeCount } = req.body;
+            const blog = await new BlogModel({
+                title: title,
+                content: content,
+                author: req.user.id,
+                attachment: attachmentUrl,
+                likeCount: likeCount,
+            });
             await blog.save();
-            if (req.body.author) {
-                const user = await UserModel.findById(req.body.author);
+            if (req.user.id) {
+                const user = await UserModel.findById(req.user.id);
                 await user.updateOne({ $push: { blogs: blog._id } });
             }
+
             res.status(200).json(blog);
         } catch (err) {
             res.status(500).json({ error: err });

@@ -22,7 +22,13 @@ const catalogController = {
     },
     getCatalog: async(req, res) => {
         try {
-            const catalog = await CatalogModel.findById(req.params.id).populate('categories');
+            const catalog = await CatalogModel.findById(req.params.id).populate({
+                path: 'categories',
+                populate: {
+                    path: 'products',
+                    populate: { path: 'reviews', populate: { path: 'user' } }
+                }
+            });
             res.status(200).json(catalog);
         } catch (error) {
             res.status(500).json({ error: error });
@@ -34,7 +40,6 @@ const catalogController = {
             const catalog = new CatalogModel(newCatalog);
             await catalog.save();
             return res.status(200).json(catalog);
-
         } catch (error) {
             res.status(500).json({ error: error });
         }
@@ -43,7 +48,6 @@ const catalogController = {
         try {
             const updateCatalog = req.body;
             const catalog = await CatalogModel.findOneAndUpdate({ _id: req.params.id }, updateCatalog, { new: true });
-            await catalog.save();
             res.status(200).json(catalog);
         } catch (error) {
             res.status(500).json({ error: error });

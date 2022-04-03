@@ -4,10 +4,12 @@ const catalogSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
     },
     categories: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category'
+        ref: 'Category',
+        unique: true,
     }],
     slug: {
         type: String,
