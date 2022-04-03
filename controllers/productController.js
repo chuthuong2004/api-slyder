@@ -34,12 +34,11 @@ const productController = {
             //     const category = await CategoryModel.findById(req.body.category);
             //     await category.updateOne({ $push: { products: product._id } })
             // }
-            // res.status(200).json({ file: req.files, body: req.body });
             const { name, title, price, discount, desProduct, category, color, size, amount, keywords } = req.body;
             let images = [];
             if (req.files.length > 0) {
                 images = req.files.map(file => {
-                    return { img: 'http://web-api-chuthuong.herokuapp.com/' + file.filename };
+                    return { img: process.env.API + 'public/products/' + file.filename };
                 })
             }
             let detail = [];
@@ -68,7 +67,16 @@ const productController = {
     updateProduct: async(req, res) => {
         try {
             const updateProduct = req.body;
-            const product = await ProductModel.findOneAndUpdate({ _id: req.params.id }, updateProduct, { new: true });
+            let images = [];
+            if (req.files.length > 0) {
+                images = req.files.map(file => {
+                    return { img: 'http://web-api-chuthuong.herokuapp.com/' + 'public/products/' + file.filename };
+                })
+            }
+            const product = await ProductModel.findOneAndUpdate({ _id: req.params.id }, {
+                images: images,
+            }, { new: true });
+
             if (!product) {
                 res.status(404).json({ message: 'Không tìm thấy product !' });
             } else {

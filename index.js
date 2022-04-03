@@ -29,12 +29,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const URI = process.env.DATABASE_URI;
 
-app.use(express.static(path.join(__dirname, 'uploads')))
+app.use('/public', express.static(path.join(__dirname, 'uploads')))
 app.use(cookieParser())
 app.use(bodyParser.json({ limit: '30mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '30mb' }));
 app.use(cors());
 app.use(morgan("common"));
+
+
 app.use('/api/product', product);
 app.use('/api/category', category);
 app.use('/api/catalog', catalog);

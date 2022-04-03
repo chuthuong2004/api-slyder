@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, path.join(path.dirname(__dirname), 'uploads'));
+        cb(null, path.join(path.dirname(__dirname), 'uploads/categories'));
     },
     filename: function(req, file, cb) {
         cb(null, shortid.generate() + '-' + file.originalname)

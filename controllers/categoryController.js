@@ -22,7 +22,7 @@ const categoryController = {
         try {
             let categoryUrl;
             if (req.file) {
-                categoryUrl = process.env.API + req.file.filename;
+                categoryUrl = process.env.API + 'public/categories/' + req.file.filename;
             }
             const newCategory = {
                 name: req.body.name,
