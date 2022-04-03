@@ -56,6 +56,9 @@ const middlewareController = {
         check('username')
         .notEmpty()
         .withMessage('Username is required'),
+        check('username')
+        .isLength({ min: 6 })
+        .withMessage('Username must be at least 6 characters'),
         check('password')
         .notEmpty()
         .withMessage('Password is required'),
