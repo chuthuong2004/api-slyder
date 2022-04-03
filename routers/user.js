@@ -16,8 +16,8 @@ router.put('/:id', middlewareController.verifyToken, userController.updateUser);
 router.delete('/:id', middlewareController.verifyTokenAndAdminAuth, userController.deleteUser);
 
 // FORGOT PASSWORD
-router.post('/forgot-password', userController.forgotPassword);
+router.post('/forgot-password', middlewareController.validateEmail, userController.forgotPassword);
 
 // CHANGE PASSWORD
-router.post('/change-password/:id', userController.changePassword);
+router.post('/change-password/:id', middlewareController.verifyToken, middlewareController.validateChangePassword, userController.changePassword);
 export default router;

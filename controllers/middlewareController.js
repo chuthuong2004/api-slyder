@@ -79,6 +79,43 @@ const middlewareController = {
         .notEmpty()
         .withMessage('Name is required'),
     ],
+    validateBlogRequest: [
+        check('title')
+        .notEmpty()
+        .withMessage('Title is required'),
+        check('content')
+        .notEmpty()
+        .withMessage('Content is required'),
+        check('attachment')
+        .notEmpty()
+        .withMessage('Attachment is required')
+    ],
+    validateEmail: [
+        check('email')
+        .notEmpty()
+        .withMessage('Email is required'),
+        check('email')
+        .isEmail()
+        .withMessage('Valid email is required'),
+
+    ],
+    validateChangePassword: [
+        check('currentPassword')
+        .notEmpty()
+        .withMessage('Current password is required'),
+        check('newPassword')
+        .notEmpty()
+        .withMessage('New password is required'),
+        check('newPassword')
+        .isLength({ min: 6 })
+        .withMessage('New Password must be at least 6 characters long'),
+        check('comfirmPassword')
+        .notEmpty()
+        .withMessage('Current password is required'),
+        check('comfirmPassword')
+        .isLength({ min: 6 })
+        .withMessage('Current Password must be at least 6 characters long')
+    ],
     isRequestValidated: (req, res, next) => {
         const errors = validationResult(req)
         if (errors.array().length > 0) {

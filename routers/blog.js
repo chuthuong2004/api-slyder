@@ -24,11 +24,9 @@ const upload = multer({ storage })
 
 router.get('/', blogController.getAllBlog);
 router.get('/:id', blogController.getAblog)
-    // router.get('/:slug', blogController.getBlog); // lấy blog dựa trên :slug 
-router.post('/', middlewareController.verifyToken, upload.single('attachment'), blogController.createBlog);
-router.put('/:id', blogController.updateBlog); // update 1 blog
-// router.patch('/restore/:id', restoreBlog); // restore
-// router.delete('/:id', deleteProduct);
-router.delete('/:id', blogController.deleteBlog);
-// router.delete('/force/:id', forceDestroyBlog);
+router.post('/', middlewareController.verifyToken, middlewareController.validateBlogRequest, middlewareController.isRequestValidated, upload.single('attachment'), blogController.createBlog);
+router.put('/:id', middlewareController.verifyToken, upload.single('attachment'), blogController.updateBlog); // update 1 blog
+router.patch('/restore/:id', middlewareController.verifyToken, blogController.restoreBlog); // restore
+router.delete('/:id', middlewareController.verifyToken, blogController.destroyBlog);
+router.delete('/force/:id', middlewareController.verifyToken, blogController.forceDestroyBlog);
 export default router;

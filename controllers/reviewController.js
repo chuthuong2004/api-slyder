@@ -24,20 +24,26 @@ const reviewController = {
     },
     addReview: async(req, res) => {
         try {
-            const newReview = req.body;
-            const review = new ReviewModel(newReview);
+            const { content, product, start } = req.body;
+
+            const review = new ReviewModel({
+                content: content,
+                product: product,
+                start: start,
+                user: req.user.id
+            });
             await review.save();
             if (req.body.product) {
                 const product = await ProductModel.findById(req.body.product);
-                await product.updateOne({ $push: { reviews: review._id } })
+                await product.updateOne({ $push: { reviews: review._id } });
             }
-            if (req.body.user) {
-                const user = await UserModel.findById(req.body.user);
+            if (req.user.id) {
+                const user = await UserModel.findById(req.user.id);
                 await user.updateOne({ $push: { reviews: review._id } })
             }
             res.status(200).json(review);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error: error });
         }
     },
     updateReview: async(req, res) => {
@@ -53,24 +59,12 @@ const reviewController = {
             res.status(500).json({ error: error });
         }
     },
-    // deleteProduct: async(req, res) => {
-    //     try {
-    //         const deleteProduct = await ProductModel.findByIdAndDelete(req.params.id);
-    //         if (!deleteProduct) {
-    //             res.status(404).json('Không tìm thấy product')
-    //         } else {
-    //             res.status(200).json('Deleted successfully')
-    //         }
-    //     } catch (err) {
-    //         res.status(500).json({ error: error });
-    //     }
-    // },
 
     // [DELETE] /course/:,
     destroyReview: async(req, res, next) => {
         try {
-            const deleteReview = await ReviewModel.delete({ _id: req.params.id });
-            if (!deleteReview) {
+            const destroyReview = await ReviewModel.delete({ _id: req.params.id });
+            if (!destroyReview) {
                 res.status(404).json('Không tìm thấy review để xử lý xóa mềm')
             } else {
                 res.status(200).json('Xóa mềm thành công !')
@@ -105,7 +99,7 @@ const reviewController = {
     // [PATCH] /course/:id/resto,
     restoreReview: async(req, res, next) => {
         try {
-            const restoreReview = await ProductModel.restore({ _id: req.params.id })
+            const restoreReview = await ReviewModel.restore({ _id: req.params.id })
             if (!restoreReview) {
                 res.status(404).json('Không tìm thấy review để khôi phục')
             } else {
