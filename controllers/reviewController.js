@@ -5,7 +5,10 @@ import { UserModel } from "../models/UserModal.js";
 const reviewController = {
     getAllReview: async(req, res) => {
         try {
-            const reviews = await ReviewModel.find();
+            const reviews = await ReviewModel.find().populate({
+                path: 'user',
+                populate: { path: 'blogs' }
+            }).populate('product');
             res.status(200).json(reviews);
         } catch (error) {
             res.status(500).json({ error: error });

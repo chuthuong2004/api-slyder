@@ -7,7 +7,13 @@ import { CategoryModel } from "../models/CategoryModel.js";
 const productController = {
     getAllProduct: async(req, res) => {
         try {
-            const products = await ProductModel.find();
+            const products = await ProductModel.find().populate({
+                path: 'category',
+                populate: { path: 'catalog', }
+            }).populate({
+                path: 'reviews',
+                populate: { path: 'user' }
+            });
             res.status(200).json(products);
         } catch (error) {
             res.status(500).json({ error: error });
