@@ -30,6 +30,6 @@ const upload = multer({ storage })
 router.get('/', categoryController.getAllCategory);
 router.get('/:id', categoryController.getCategory);
 router.post('/', middlewareController.verifyTokenAndAdminAuth, upload.single('imageCate'), categoryController.addCategory);
-router.put('/:id', middlewareController.verifyTokenAndAdminAuth, categoryController.updateCategory);
+router.put('/:id', middlewareController.verifyTokenAndAdminAuth, upload.single('imageCate'), categoryController.updateCategory);
 router.delete('/:id', middlewareController.verifyTokenAndAdminAuth, categoryController.deleteCategory);
 export default router;

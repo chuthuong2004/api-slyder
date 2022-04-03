@@ -4,7 +4,16 @@ import { CategoryModel } from "../models/CategoryModel.js";
 const catalogController = {
     getAllCatalog: async(req, res) => {
         try {
-            const catalogs = await CatalogModel.find();
+            const catalogs = await CatalogModel.find().populate({
+                path: 'categories',
+                populate: {
+                    path: 'products',
+                    populate: {
+                        path: 'reviews',
+                        populate: { path: 'user' }
+                    }
+                }
+            });
             console.log('Catalog', catalogs);
             res.status(200).json(catalogs);
         } catch (error) {

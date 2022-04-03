@@ -5,7 +5,16 @@ import { UserModel } from "../models/UserModal.js";
 const cartController = {
     getAllCart: async(req, res) => {
         try {
-            const carts = await CartModel.find();
+            const carts = await CartModel.find().populate({
+                path: 'user',
+                populate: { path: 'reviews' }
+            }).populate({
+                path: 'user',
+                populate: { path: 'blogs' }
+            }).populate({
+                path: 'cartItems',
+                populate: { path: 'product' }
+            });
             res.status(200).json(carts);
         } catch (err) {
             res.status(500).json({ error: err });
@@ -32,29 +41,39 @@ const cartController = {
                 if (item) {
                     condition = {
                         'user': req.user.id,
-                        'cartItems.product': product,
-                        'cartItems.color': color,
-                        'cartItems.size': size
+                        'cartItems._id': item._id,
                     };
                     update = {
                         '$set': {
-                            'cartItems.$': {
-                                ...req.body.cartItems,
-                                quantity: item.quantity + req.body.cartItems.quantity
-                            }
+                            'cartItems.$.product': item.product,
+                            'cartItems.$.color': item.color,
+                            'cartItems.$.size': item.size,
+                            'cartItems.$.quantity': item.quantity + req.body.cartItems.quantity
                         }
-                    }, {
-                        'new': true,
-                        'upsert': true
                     };
+
+                    // condition = {
+                    //     'user': req.user.id,
+                    //     'cartItems.product': product,
+                    //     'cartItems.color': color,
+                    //     'cartItems.size': size
+                    // };
+                    // update = {
+                    //     '$set': {
+                    //         'cartItems.$': {
+                    //             ...req.body.cartItems,
+                    //             quantity: item.quantity + req.body.cartItems.quantity
+                    //         }
+                    //     }
+                    // };
 
                 } else {
                     condition = { user: req.user.id };
                     update = {
                         $push: { cartItems: req.body.cartItems }
-                    }, { 'new': true };
+                    };
                 }
-                CartModel.findOneAndUpdate(condition, update)
+                CartModel.findOneAndUpdate(condition, update, { new: true })
                     .exec((error, _cart) => {
                         if (error) return res.status(400).json({ error: error })
                         if (_cart) {

@@ -45,6 +45,9 @@ const categoryController = {
     updateCategory: async(req, res) => {
         try {
             const updateCategory = req.body;
+            if (req.file) {
+                categoryUrl = process.env.API + 'public/categories/' + req.file.filename;
+            }
             const category = await CategoryModel.findOneAndUpdate({ _id: req.params.id }, updateCategory, { new: true });
             await category.save();
             if (req.body.catalog) {
