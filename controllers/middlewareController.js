@@ -114,10 +114,10 @@ const middlewareController = {
         .withMessage('New Password must be at least 6 characters long'),
         check('comfirmPassword')
         .notEmpty()
-        .withMessage('Current password is required'),
+        .withMessage('Comfirm password is required'),
         check('comfirmPassword')
         .isLength({ min: 6 })
-        .withMessage('Current Password must be at least 6 characters long')
+        .withMessage('Comfirm Password must be at least 6 characters long')
     ],
     isRequestValidated: (req, res, next) => {
         const errors = validationResult(req)
