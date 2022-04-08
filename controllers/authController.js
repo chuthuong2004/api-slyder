@@ -21,11 +21,11 @@ const generateRefreshToken = (user) => {
 }
 
 const authController = {
-    // REGISTER
+    // * REGISTER
     registerUser: async(req, res) => {
         try {
             const isExistUser = await UserModel.findOne({ email: req.body.email });
-            if (isExistUser) return res.status(400).json({ message: 'Email đã tồn tại !' });
+            if (isExistUser) return res.status(400).json({ success: false, message: 'Email đã tồn tại !' });
             const { username, password, email } = req.body;
             const salt = await bcrypt.genSalt(10);
             const hasded = await bcrypt.hash(password, salt);
@@ -40,19 +40,19 @@ const authController = {
             res.status(500).json({ error: error });
         }
     },
-    // LOGIN
+    // * LOGIN
     loginUser: async(req, res) => {
         try {
-            const user = await UserModel.findOne({ username: req.body.username });
+            const user = await UserModel.findOne({ username: req.body.username }).select('+password');
             if (!user) {
-                return res.status(404).json({ message: 'Không tìm thấy user !' });
+                return res.status(404).json({ success: false, message: 'Không tìm thấy user !' });
             }
             const validPassword = await bcrypt.compare(
                 req.body.password,
                 user.password
             );
             if (!validPassword) {
-                return res.status(404).json({ message: 'Mật khẩu không đúng !' });
+                return res.status(404).json({ success: false, message: 'Mật khẩu không đúng !' });
             }
             if (user && validPassword) {
                 const accessToken = generateAccessToken(user);
@@ -64,22 +64,24 @@ const authController = {
                     path: '/',
                     // sameSite: 'strict',
                 })
-                const { password, ...orther } = user._doc;
-                res.status(200).json({...orther, accessToken });
+                const { password, ...other } = user._doc;
+                res.status(200).json({...other, accessToken });
             }
 
         } catch (error) {
             res.status(500).json({ error: error })
         }
     },
+
+    // * REFRESH TOKEN
     requestRefreshToken: async(req, res) => {
         // lấy refreshToken từ user
         const refreshToken = req.cookies.refreshToken;
         if (!refreshToken) {
-            return res.status(401).json({ message: 'Bạn chưa xác thực !' });
+            return res.status(401).json({ success: false, message: 'Bạn chưa xác thực !' });
         }
         if (!refreshTokens.includes(refreshToken)) {
-            return res.status(403).json({ message: 'RefreshToken không hợp lệ' })
+            return res.status(403).json({ success: false, message: 'RefreshToken không hợp lệ' })
         }
         jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (error, user) => {
             if (error) {
@@ -100,11 +102,13 @@ const authController = {
         });
         // res.status(200).json(refreshToken);
     },
+
+    // * LOGOUT
     logoutUser: async(req, res) => {
         try {
             res.clearCookie('refreshToken');
             refreshTokens = refreshTokens.filter(token => token !== req.cookies.refreshToken);
-            res.status(200).json({ message: 'Đăng xuất thành công !' })
+            res.status(200).json({ success: true, message: 'Đăng xuất thành công !' })
         } catch (error) {
             res.status(403).json({ error: error })
         }

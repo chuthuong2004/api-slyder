@@ -7,13 +7,10 @@ const cartController = {
         try {
             const carts = await CartModel.find().populate({
                 path: 'user',
-                populate: { path: 'reviews' }
-            }).populate({
-                path: 'user',
-                populate: { path: 'blogs' }
+                select: '_id username email isAdmin',
             }).populate({
                 path: 'cartItems',
-                populate: { path: 'product' }
+                populate: { path: 'product', select: '_id name price discount' }
             });
             res.status(200).json(carts);
         } catch (err) {
@@ -22,7 +19,13 @@ const cartController = {
     },
     getCart: async(req, res) => {
         try {
-            const cart = await CartModel.findById(req.params.id).populate('user').populate('cartItems.product');
+            const cart = await CartModel.findById(req.params.id).populate({
+                path: 'user',
+                select: '_id username email isAdmin',
+            }).populate({
+                path: 'cartItems',
+                populate: { path: 'product', select: '_id name price discount' }
+            });
             res.status(200).json(cart);
         } catch (err) {
             res.status(500).json({ error: err });
@@ -30,12 +33,13 @@ const cartController = {
     },
     addItemToCart: async(req, res) => {
         try {
+            const cartItems = req.body;
             // tìm cart nào mà user này đã đăng nhập xem có tồn tại cart hay chưa
             const cart = await CartModel.findOne({ user: req.user.id })
             if (cart) { // nếu cart tồn tại thì update số lượng product trong cart
-                const product = req.body.cartItems.product;
-                const color = req.body.cartItems.color;
-                const size = req.body.cartItems.size;
+                const product = cartItems.product;
+                const color = cartItems.color;
+                const size = cartItems.size;
                 const item = cart.cartItems.find(c => (c.product == product && c.color == color) && (c.product == product && c.size == size) && (c.color == color && c.size == size));
                 let condition, update;
                 if (item) {
@@ -48,29 +52,13 @@ const cartController = {
                             'cartItems.$.product': item.product,
                             'cartItems.$.color': item.color,
                             'cartItems.$.size': item.size,
-                            'cartItems.$.quantity': item.quantity + req.body.cartItems.quantity
+                            'cartItems.$.quantity': item.quantity + cartItems.quantity
                         }
                     };
-
-                    // condition = {
-                    //     'user': req.user.id,
-                    //     'cartItems.product': product,
-                    //     'cartItems.color': color,
-                    //     'cartItems.size': size
-                    // };
-                    // update = {
-                    //     '$set': {
-                    //         'cartItems.$': {
-                    //             ...req.body.cartItems,
-                    //             quantity: item.quantity + req.body.cartItems.quantity
-                    //         }
-                    //     }
-                    // };
-
                 } else {
                     condition = { user: req.user.id };
                     update = {
-                        $push: { cartItems: req.body.cartItems }
+                        $push: { cartItems: cartItems }
                     };
                 }
                 CartModel.findOneAndUpdate(condition, update, { new: true })
@@ -79,12 +67,13 @@ const cartController = {
                         if (_cart) {
                             return res.status(200).json({ message: "Updated cart successfully", _cart })
                         }
-                    })
+                    });
+
 
             } else { // nếu user chưa có cart thì thêm mới 1 cart cho user
                 const newCart = await new CartModel({
                     user: req.user.id,
-                    cartItems: [req.body.cartItems],
+                    cartItems: [cartItems],
                 });
                 await newCart.save();
                 if (req.user.id) {
@@ -97,35 +86,80 @@ const cartController = {
             res.status(500).json({ error: err });
         }
     },
-    deleteProductToCart: async(req, res) => {
-        // try {
-        //     const cart = await CartModel.findById(req.params.id);
-        //     if
-
-        // } catch (error) {
-        //     res.status(500).json({ error: error })
-        // }
-    },
     updateCart: async(req, res) => {
         try {
-            const productId = req.body.products[0].product;
-            const quantity = req.body.products[0].quantity;
-            const cart = await CartModel.findById(req.params.id);
-            await cart.updateOne({ quantity: quantity });
-            res.status(200).json({ success: true, message: 'Cart updated successfully' });
+            const cart = await CartModel.findOne({ user: req.user.id })
+            if (cart) { // nếu cart tồn tại thì update số lượng product trong cart
+                const cartItemId = req.params.id;
+                const cartItem = cart.cartItems.find(c => c._id = cartItemId);
+                if (cartItem) {
+                    if (req.body.quantity) {
+                        // return res.status(200).json(cartItem);
+                        var condition = {
+                            'user': req.user.id,
+                            'cartItems._id': cartItem._id,
+                        };
+                        var update = {
+                            '$set': {
+                                'cartItems.$.quantity': req.body.quantity,
+                            }
+                        };
+                        CartModel.findOneAndUpdate(condition, update, { new: true })
+                            .exec((error, _cart) => {
+                                if (error) return res.status(400).json({ error: error })
+                                if (_cart) {
+                                    return res.status(200).json({ message: "Updated cart successfully", _cart })
+                                }
+                            })
+                    }
+                }
+            }
+
         } catch (err) {
             res.status(500).json({ error: err });
         }
     },
+    removeToCart: async(req, res) => {
+        try {
+            const cart = await CartModel.findOne({ user: req.user.id })
+            if (cart) { // nếu cart tồn tại thì update số lượng product trong cart
+                const cartItemId = req.params.id;
+                const cartItem = cart.cartItems.find(c => c._id = cartItemId);
+                if (cartItem) {
+                    if (cart.cartItems.length == 1) {
+                        await UserModel.updateOne({ cart: cart._id }, { cart: null });
+                        await CartModel.findByIdAndDelete(cart._id);
+                        return res.status(200).json({ message: 'Deleted cart successfully' })
+                    }
+                    let condition = {
+                        'user': req.user.id,
+                        'cartItems._id': cartItem._id,
+                    };
+                    let update = {
+                        '$pull': { 'cartItems': { '_id': cartItem._id } }
+                    };
+                    CartModel.findOneAndUpdate(condition, update, { new: true })
+                        .exec((error, _cart) => {
+                            if (error) return res.status(400).json({ error: error })
+                            if (_cart) {
+                                return res.status(200).json({ message: "Updated cart successfully", _cart })
+                            }
+                        });
+
+                } else {
+                    return res.status(200).json({ error: 'cart item not found' })
+                }
+            }
+
+        } catch (error) {
+            res.status(500).json({ error: error })
+        }
+    },
     deleteCart: async(req, res) => {
         try {
-            // await UserModel.updateMany({
-            //     blogs: req.params.id
-            // }, {
-            //     $pull: { blogs: req.params.id }
-            // })
-            // await BlogModel.findByIdAndDelete(req.params.id);
-            // res.status(200).json({ message: 'Deleted blog successfully' })
+            await UserModel.updateOne({ cart: req.params.id }, { cart: null });
+            await CartModel.findByIdAndDelete(req.params.id);
+            res.status(200).json({ message: 'Deleted cart successfully' })
         } catch (error) {
             res.status(500).json({ error: error })
         }

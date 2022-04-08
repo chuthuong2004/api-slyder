@@ -26,10 +26,21 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 
 
+// ! GET ALL CATEGORY --- PAGINATION
+router.get('/categories', categoryController.getAllCategory);
 
-router.get('/', categoryController.getAllCategory);
-router.get('/:id', categoryController.getCategory);
-router.post('/', middlewareController.verifyTokenAndAdminAuth, upload.single('imageCate'), categoryController.addCategory);
-router.put('/:id', middlewareController.verifyTokenAndAdminAuth, upload.single('imageCate'), categoryController.updateCategory);
-router.delete('/:id', middlewareController.verifyTokenAndAdminAuth, categoryController.deleteCategory);
+// * GET CATEGORY DETAILS
+router.get('/category/:id', categoryController.getCategoryDetails);
+
+// * GET ALL CATEGORIES --- ADMIN
+router.get('/admin/categories', middlewareController.verifyTokenAndAdminAuth, categoryController.getAdminCategories);
+
+// * CREATE CATEGORY --- ADMIN
+router.post('/admin/category/new', middlewareController.verifyTokenAndAdminAuth, upload.single('imageCate'), categoryController.createCategory);
+
+// * UPDATE CATEGORY --- ADMIN
+router.put('/admin/category/:id', middlewareController.verifyTokenAndAdminAuth, upload.single('imageCate'), categoryController.updateCategory);
+
+// * DELETE CATEGORY --- ADMIN
+router.delete('/admin/category/:id', middlewareController.verifyTokenAndAdminAuth, categoryController.deleteCategory);
 export default router;

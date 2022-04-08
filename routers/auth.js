@@ -3,15 +3,15 @@ import authController from '../controllers/authController.js';
 import middlewareController from '../controllers/middlewareController.js';
 const router = express.Router();
 
-// REGISTER
-router.post('/register', middlewareController.validateSignupRequest, middlewareController.isRequestValidated, authController.registerUser);
+// * REGISTER
+router.post('/auth/register', middlewareController.validateSignupRequest, middlewareController.isRequestValidated, authController.registerUser);
 
-// SIGIN
-router.post('/login', middlewareController.validateSigninRequest, middlewareController.isRequestValidated, authController.loginUser);
+// * SIGIN
+router.post('/auth/login', middlewareController.validateSigninRequest, middlewareController.isRequestValidated, authController.loginUser);
 
-// REFRESH
-router.post('/refresh', authController.requestRefreshToken)
+// * REFRESH
+router.post('/auth/refresh', authController.requestRefreshToken)
 
-// LOGOUT
-router.post('/logout', middlewareController.verifyToken, authController.logoutUser);
+// * LOGOUT
+router.post('/auth/logout', middlewareController.verifyToken, authController.logoutUser);
 export default router;

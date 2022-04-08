@@ -22,10 +22,20 @@ const upload = multer({ storage })
 
 //http://localhost:5000/posts
 
-router.get('/', blogController.getAllBlog);
-router.get('/:id', blogController.getAblog)
-router.post('/', middlewareController.verifyToken, middlewareController.validateBlogRequest, middlewareController.isRequestValidated, upload.single('attachment'), blogController.createBlog);
-router.put('/:id', middlewareController.verifyToken, upload.single('attachment'), blogController.updateBlog); // update 1 blog
+// ! GET ALL BLOGS --- PAGINATION
+router.get('/blogs', blogController.getAllBlog);
+
+// * GET BLOG DETAILS
+router.get('/blog/:id', blogController.getAblog)
+
+// * GET ALL BLOGS --- ADMIN
+router.get('/admin/blogs', middlewareController.verifyTokenAndAdminAuth, blogController.getAdminBlog);
+
+// * CREATE BLOG
+router.post('/blog/new', middlewareController.verifyToken, upload.single('attachment'), blogController.createBlog);
+
+// * UPDATE BLOG
+router.put('/blog/:id', middlewareController.verifyToken, upload.single('attachment'), blogController.updateBlog); // update 1 blog
 router.patch('/restore/:id', middlewareController.verifyToken, blogController.restoreBlog); // restore
 router.delete('/:id', middlewareController.verifyToken, blogController.destroyBlog);
 router.delete('/force/:id', middlewareController.verifyToken, blogController.forceDestroyBlog);

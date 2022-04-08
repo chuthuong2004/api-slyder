@@ -3,21 +3,27 @@ import middlewareController from '../controllers/middlewareController.js';
 import userController from '../controllers/userController.js';
 const router = express.Router();
 
-// GET ALL USER
-router.get('/', middlewareController.verifyToken, userController.getAllUser);
+// * GET ALL USER ---- Admin
+router.get('/admin/users', middlewareController.verifyTokenAndAdminAuth, userController.getAllUser);
 
-// GET A USER
-router.get('/:id', middlewareController.verifyToken, userController.getUser);
+// * GET A USER ---- Admin
+router.get('/admin/user/:id', middlewareController.verifyTokenAndAdminAuth, userController.getUser);
 
-// UPDATE USER
-router.put('/:id', middlewareController.verifyToken, userController.updateUser);
+// * UPDATE USER ROLE ----- Admin
+router.put('/admin/user/:id', middlewareController.verifyTokenAndAdminAuth, userController.updateUserRole);
 
-// DELETE USER
-router.delete('/:id', middlewareController.verifyTokenAndAdminAuth, userController.deleteUser);
+// * DELETE USER ----- Admin
+router.delete('/admin/user/:id', middlewareController.verifyTokenAndAdminAuth, userController.deleteUser);
 
-// FORGOT PASSWORD
-router.post('/forgot-password', middlewareController.validateEmail, userController.forgotPassword);
+// * GET USER DETAILS
+router.get('/me', middlewareController.verifyToken, userController.getUserDetails);
 
-// CHANGE PASSWORD
-router.post('/change-password/:id', middlewareController.verifyToken, middlewareController.validateChangePassword, middlewareController.isRequestValidated, userController.changePassword);
+// * UPDATE USER
+router.put('/me/update', middlewareController.verifyToken, userController.updateProfile);
+
+// * FORGOT PASSWORD
+router.post('/password/forgot', middlewareController.validateEmail, middlewareController.isRequestValidated, userController.forgotPassword);
+
+// * CHANGE PASSWORD
+router.post('/password/update', middlewareController.verifyToken, middlewareController.validateChangePassword, middlewareController.isRequestValidated, userController.changePassword);
 export default router;

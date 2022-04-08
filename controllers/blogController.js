@@ -2,94 +2,121 @@ import { BlogModel } from '../models/BlogModel.js';
 import { UserModel } from '../models/UserModal.js';
 
 const blogController = {
+
+    // * GET ALL BLOGS
     getAllBlog: async(req, res) => {
         try {
+            const resultPerPage = 8;
+            const productsCount = await BlogModel.countDocuments();
             const blogs = await BlogModel.find().populate({
                 path: 'author',
-                populate: { path: 'reviews' }
-            }).populate({
-                path: 'author',
-                populate: { path: 'cart' }
+                populate: { path: 'reviews cart orders' },
             });
-            res.status(200).json(blogs);
+            res.status(200).json({
+                success: true,
+                productsCount,
+                resultPerPage,
+                blogs
+            });
         } catch (err) {
             res.status(500).json({ error: err });
         }
     },
+
+    // * GET ALL BLOGS --- ADMIN
+    getAdminBlog: async(req, res) => {
+        try {
+            const blogs = await BlogModel.find();
+            res.status(200).json({
+                success: true,
+                blogs
+            })
+        } catch (error) {
+            res.status(500).json({ error: error })
+        }
+    },
+
+    // * GET BLOG DETAILS
     getAblog: async(req, res) => {
         try {
             const blog = await BlogModel.findById(req.params.id).populate({
                 path: 'author',
-                populate: { path: 'reviews' }
-            }).populate({
-                path: 'author',
-                populate: { path: 'cart' }
+                populate: { path: 'reviews cart orders' }
+            })
+            res.status(200).json({
+                success: true,
+                blog,
             });
-            res.status(200).json(blog);
         } catch (err) {
             res.status(500).json({ error: err });
         }
     },
+
+    // * CREATE BLOG 
     createBlog: async(req, res) => {
         try {
-            let attachmentUrl;
+            const newBlog = req.body;
             if (req.file) {
-                attachmentUrl = process.env.API + 'public/blogs/' + req.file.filename;
+                newBlog.attachment = process.env.API + 'public/blogs/' + req.file.filename;
             }
-            const { title, content } = req.body;
-            const blog = await new BlogModel({
-                title: title,
-                content: content,
-                author: req.user.id,
-                attachment: attachmentUrl,
-            });
+            newBlog.author = req.user.id;
+            const blog = await new BlogModel(newBlog);
             await blog.save();
             if (req.user.id) {
                 const user = await UserModel.findById(req.user.id);
                 await user.updateOne({ $push: { blogs: blog._id } });
             }
 
-            res.status(200).json(blog);
+            res.status(200).json({
+                success: true,
+                blog
+            });
         } catch (err) {
             res.status(500).json({ error: err });
         }
     },
+
+    // * UPDATE BLOG
     updateBlog: async(req, res) => {
         try {
-
-            let attachmentUrl;
+            const newBlog = req.body;
             if (req.file) {
-                attachmentUrl = process.env.API + 'public/blogs/' + req.file.filename;
+                newBlog.attachment = process.env.API + 'public/blogs/' + req.file.filename;
             }
-            const { title, content } = req.body;
-            const updateBlog = {
-                title: title,
-                content: content,
-                attachment: attachmentUrl,
-            };
-            const blog = await BlogModel.findOneAndUpdate({ _id: updateBlog._id },
-                updateBlog, { new: true }
+            const blog = await BlogModel.findOneAndUpdate({ _id: req.params.id },
+                newBlog, { new: true }
             );
 
-            res.status(200).json(blog);
+            res.status(200).json({
+                success: true,
+                blog
+            });
         } catch (err) {
             res.status(500).json({ error: err });
         }
     },
-    // [DELETE] /course/:,
+
+    // * SOFT DELETE BLOG
     destroyBlog: async(req, res, next) => {
         try {
             const destroyBlog = await BlogModel.delete({ _id: req.params.id });
             if (!destroyBlog) {
-                res.status(404).json('Không tìm thấy blog để xử lý xóa mềm')
+                res.status(404).json({
+                    success: false,
+                    message: 'Không tìm thấy blog để xử lý xóa mềm'
+                })
             } else {
-                res.status(200).json('Xóa mềm thành công !')
+                res.status(200).json({
+                    success: true,
+                    message: 'Xóa mềm thành công !'
+                })
             }
         } catch (error) {
             res.status(500).json({ error: error });
         }
     },
-    // [DELETE] /course/:id/for,
+
+    // * DELETE BLOG
     forceDestroyBlog: async(req, res, next) => {
         try {
             await UserModel.updateMany({
@@ -99,22 +126,35 @@ const blogController = {
             })
             const deleteBlog = await BlogModel.deleteOne({ _id: req.params.id })
             if (!deleteBlog) {
-                res.status(404).json('Không tìm thấy blog để xử lý xóa hẳn')
+                res.status(404).json({
+                    success: false,
+                    message: 'Không tìm thấy blog để xử lý xóa hẳn'
+                })
             } else {
-                res.status(200).json('Deleted successfully')
+                res.status(200).json({
+                    success: true,
+                    message: 'Deleted successfully'
+                })
             }
         } catch (error) {
             res.status(500).json({ error: error });
         }
     },
-    // [PATCH] /course/:id/resto,
+
+    // * RESTORE BLOG
     restoreBlog: async(req, res, next) => {
         try {
             const restoreBlog = await BlogModel.restore({ _id: req.params.id })
             if (!restoreBlog) {
-                res.status(404).json('Không tìm thấy blog để khôi phục')
+                res.status(404).json({
+                    success: false,
+                    message: 'Không tìm thấy blog để khôi phục'
+                })
             } else {
-                res.status(200).json('Khôi phục blog thành công')
+                res.status(200).json({
+                    success: true,
+                    message: 'Khôi phục blog thành công'
+                })
             }
         } catch (error) {
             res.status(500).json({ error: error });

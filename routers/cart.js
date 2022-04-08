@@ -3,21 +3,20 @@ import cartController from '../controllers/cartController.js';
 import middlewareController from '../controllers/middlewareController.js';
 const router = express.Router();
 
-// GET ALL CART
-router.get('/', cartController.getAllCart);
+// ! GET ALL CART
+router.get('/carts', cartController.getAllCart);
 
-// ADD CART
-router.post('/add-to-cart', middlewareController.verifyToken, cartController.addItemToCart);
-// router.post('/add-product-to-cart/:id', cartController.addProductToCart);
+// ! GET A CART
+router.get('/cart/:id', cartController.getCart);
 
-// GET A CART
-router.get('/:id', cartController.getCart);
+// ! ADD ITEM CART
+router.post('/cart/add-to-cart', middlewareController.verifyToken, middlewareController.validateAddToCart, middlewareController.isRequestValidated, cartController.addItemToCart);
 
-// UPDATE CART
-// router.put('/:id', cartController.updateCart);
+// ! UPDATE CART
+router.put('/cart/:id', middlewareController.verifyToken, middlewareController.validateUpdateCart, middlewareController.isRequestValidated, cartController.updateCart);
 
-// DELETE CART
-// router.delete('/:id', cartController.deleteCart);
+// ! REMOVE TO CART
+router.put('cart/remove-to-cart/:id', middlewareController.verifyToken, cartController.removeToCart);
 
 
 export default router;

@@ -15,7 +15,7 @@ const middlewareController = {
     verifyToken: (req, res, next) => {
         const token = req.headers.token;
         if (token) {
-            // Bearer 62135461
+            // Bearer ẻgfwherfwerfwf
             const accessToken = token.split(' ')[1];
             jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
                 if (err) {
@@ -82,17 +82,6 @@ const middlewareController = {
         .notEmpty()
         .withMessage('Name is required'),
     ],
-    validateBlogRequest: [
-        check('title')
-        .notEmpty()
-        .withMessage('Title is required'),
-        check('content')
-        .notEmpty()
-        .withMessage('Content is required'),
-        check('attachment')
-        .notEmpty()
-        .withMessage('Attachment is required')
-    ],
     validateEmail: [
         check('email')
         .notEmpty()
@@ -118,6 +107,24 @@ const middlewareController = {
         check('comfirmPassword')
         .isLength({ min: 6 })
         .withMessage('Comfirm Password must be at least 6 characters long')
+    ],
+    validateUpdateCart: [
+        check('quantity')
+        .notEmpty()
+        .withMessage('quantity is required'),
+    ],
+    validateAddToCart: [
+        check('product')
+        .notEmpty()
+        .withMessage('ID product is required'),
+        check('size')
+        .notEmpty().withMessage('Size is required'),
+        check('color').notEmpty().withMessage('Color is required'),
+        check('quantity')
+        .notEmpty()
+        .withMessage('Quantity is required'),
+        check('quantity')
+        .isNumeric({ min: 1 }).withMessage('Quantity is at least 1')
     ],
     isRequestValidated: (req, res, next) => {
         const errors = validationResult(req)

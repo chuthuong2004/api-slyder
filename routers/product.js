@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Router } from 'express';
 import middlewareController from '../controllers/middlewareController.js';
 import productController from '../controllers/productController.js';
 import multer from 'multer'
@@ -24,13 +24,28 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-router.get('/', productController.getAllProduct); // lấy tất cả sản phẩm
-// router.get('/:slug', productController.getProduct); // lấy sản phẩm dựa trên :slug (name của producdt)
-router.get('/:id', productController.getProduct); // lấy sản phẩm dựa trên :slug (name của producdt)
-router.post('/', middlewareController.verifyTokenAndAdminAuth, upload.array('images'), productController.addProduct); // thêm mới 1 product
-router.put('/:id', middlewareController.verifyTokenAndAdminAuth, upload.array('images'), productController.updateProduct); // update 1 product
-// router.delete('/:id', deleteProduct);
-router.patch('/restore/:id', middlewareController.verifyTokenAndAdminAuth, productController.restoreProduct);
-router.delete('/:id', middlewareController.verifyTokenAndAdminAuth, productController.destroyProduct);
-router.delete('/force/:id', middlewareController.verifyTokenAndAdminAuth, productController.forceDestroyProduct);
+// ! GET ALL PRODUCTS ---- PAGINATION 
+router.get('/products', productController.getAllProduct);
+
+// * GET PRODUCT DETAIL
+router.get('/product/:id', productController.getProductDetails);
+
+// * GET ALL PRODUCTS -- ADMIN
+router.get('/admin/products', middlewareController.verifyTokenAndAdminAuth, productController.getAdminProducts);
+
+// ! CREATE PRODUCT --- ADMIN ---- HANDLE IMAGES
+router.post('/admin/product/new', middlewareController.verifyTokenAndAdminAuth, upload.array('images'), productController.createProduct);
+
+// ! UPDATE PRODUCT -- kiểm tra size color amount khi update
+// * UPDATE PRODUCT ---- ADMIN 
+router.put('/admin/product/:id', middlewareController.verifyTokenAndAdminAuth, upload.array('images'), productController.updateProduct); // update 1 product
+
+// * RESTORE PRODUCT 
+router.patch('/admin/product/restore/:id', middlewareController.verifyTokenAndAdminAuth, productController.restoreProduct);
+
+// * SOFT DELETE PRODUCT
+router.delete('/admin/product/:id', middlewareController.verifyTokenAndAdminAuth, productController.destroyProduct);
+
+// * DELETE PRODUCT
+router.delete('/admin/product/force/:id', middlewareController.verifyTokenAndAdminAuth, productController.forceDestroyProduct);
 export default router;

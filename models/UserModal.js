@@ -20,7 +20,8 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minlength: 6
+        minlength: 6,
+        select: false
     },
     isAdmin: {
         type: Boolean,
@@ -37,6 +38,10 @@ const userSchema = new mongoose.Schema({
     blogs: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Blog'
+    }],
+    orders: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order'
     }]
 
 }, { timestamps: true });

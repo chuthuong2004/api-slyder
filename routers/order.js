@@ -1,22 +1,23 @@
 import express from 'express';
 import middlewareController from '../controllers/middlewareController.js';
+import orderController from '../controllers/orderController.js';
 const router = express.Router();
 
-// GET ALL USER
-// router.get('/', middlewareController.verifyToken, getAllUser);
+// ! NEW ORDER
+router.post('/order/new', middlewareController.verifyToken, orderController.newOrder);
 
-// GET A USER
-// router.get('/:id', getUser);
+// ! GET SINGLE ORDER
+router.get('/order/:id', middlewareController.verifyToken, orderController.getSingleOrder);
 
-// UPDATE USER
-// router.put('/:id', updateUser);
+// ! MY ORDER
+router.get('/orders/me', middlewareController.verifyToken, orderController.myOrders);
 
-// DELETE USER
-// router.delete('/:id', middlewareController.verifyTokenAndAdminAuth, deleteUser);
+// ! GET ALL ORDERS --- ADMIN
+router.get('/admin/orders', middlewareController.verifyTokenAndAdminAuth, orderController.getAllOrders);
 
-// FORGOT PASSWORD
-// router.post('/forgot-password', forgotPassword);
+// ! UPDATE ORDER --- ADMIN
+router.put('/admin/order/:id', middlewareController.verifyTokenAndAdminAuth, orderController.updateOrder);
 
-// CHANGE PASSWORD
-// router.post('/change-password/:id', changePassword);
+// ! DELETE ORDER --- ADMIN
+router.delete('/admin/order/:id', middlewareController.verifyTokenAndAdminAuth, orderController.deleteOrder);
 export default router;
