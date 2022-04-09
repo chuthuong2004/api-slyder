@@ -10,7 +10,7 @@ const cartController = {
                 select: '_id username email isAdmin',
             }).populate({
                 path: 'cartItems',
-                populate: { path: 'product', select: '_id name price discount' }
+                populate: { path: 'product' } // select: '_id name price discount'
             });
             res.status(200).json(carts);
         } catch (err) {

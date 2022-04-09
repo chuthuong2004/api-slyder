@@ -1,10 +1,75 @@
+import e from "express";
+import { CartModel } from "../models/CartModel.js";
 import { OrderModel } from "../models/OrderModel.js";
+import { ProductModel } from "../models/ProductModel.js";
+import { UserModel } from "../models/UserModal.js";
 
 const orderController = {
 
-    // ! CREATE ORDER WITH USER CART
+    // * CREATE ORDER WITH USER CART
     newOrder: async(req, res) => {
+        try {
+            const { fullName, phone, address } = req.body;
+            let shippingPrice = req.body.shippingPrice;
+            const shippingInfo = {
+                fullName: fullName,
+                phone: phone,
+                address: address
+            }
+            const cart = await CartModel.findOne({ user: req.user.id }).populate({
+                path: 'cartItems',
+                populate: { path: 'product' }
+            });
+            if (!cart) return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy cart !'
+            })
+            let totalPrice = 0;
 
+            // * GET PRODUCT DETAILS
+            const orderItems = cart.cartItems.map((cartItem) => {
+                    totalPrice += (cartItem.product.price * cartItem.quantity);
+                    return {
+                        name: cartItem.product.name,
+                        price: cartItem.product.price,
+                        quantity: cartItem.quantity,
+                        size: cartItem.size,
+                        color: cartItem.color,
+                        image: cartItem.product.images[0].img,
+                        product: cartItem.product._id
+                    };
+                })
+                // * Delete cart
+            await cart.delete();
+
+            // * Check price shipping
+            if (!shippingPrice) shippingPrice = 30000;
+            totalPrice += shippingPrice;
+
+            // * create new order model
+            const newOrder = new OrderModel({
+                    shippingInfo: shippingInfo,
+                    orderItems: orderItems,
+                    user: req.user.id,
+                    shippingPrice: shippingPrice,
+                    totalPrice: totalPrice,
+                })
+                // * Save order
+            await newOrder.save();
+
+            // * Tìm User
+            const user = await UserModel.findById(req.user.id);
+            if (!user) return res.status(404).json({
+                    success: false,
+                    message: 'User not found'
+                })
+                // * Push order vào user
+            await user.updateOne({ $push: { orders: newOrder._id } })
+
+            return res.status(200).json({ success: true, order: newOrder });
+        } catch (error) {
+            res.status(500).json({ error: error })
+        }
     },
 
     // * GET SINGLE ORDER

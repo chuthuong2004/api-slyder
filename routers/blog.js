@@ -36,7 +36,13 @@ router.post('/blog/new', middlewareController.verifyToken, upload.single('attach
 
 // * UPDATE BLOG
 router.put('/blog/:id', middlewareController.verifyToken, upload.single('attachment'), blogController.updateBlog); // update 1 blog
+
+// * RESTORE BLOG
 router.patch('/restore/:id', middlewareController.verifyToken, blogController.restoreBlog); // restore
+
+// * SOFT DELETE BLOG
 router.delete('/:id', middlewareController.verifyToken, blogController.destroyBlog);
+
+// * DELETE BLOG
 router.delete('/force/:id', middlewareController.verifyToken, blogController.forceDestroyBlog);
 export default router;

@@ -25,5 +25,6 @@ router.put('/me/update', middlewareController.verifyToken, userController.update
 router.post('/password/forgot', middlewareController.validateEmail, middlewareController.isRequestValidated, userController.forgotPassword);
 
 // * CHANGE PASSWORD
-router.post('/password/update', middlewareController.verifyToken, middlewareController.validateChangePassword, middlewareController.isRequestValidated, userController.changePassword);
+router.post('/password/update', middlewareController.verifyToken, middlewareController.validateChangePassword,
+    middlewareController.isRequestValidated, userController.changePassword);
 export default router;
