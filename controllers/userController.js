@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import { BlogModel } from '../models/BlogModel.js';
 import { UserModel } from '../models/UserModal.js';
+import { sendEmail } from '../utils/sendMail.js';
 import dotenv from 'dotenv';
 dotenv.config();
 const userController = {
@@ -116,30 +117,19 @@ const userController = {
                 const hasded = await bcrypt.hash(newPassword, salt);
                 const newUser = await UserModel.findOneAndUpdate({ email: email }, { password: hasded }, { new: true });
                 await newUser.save();
-                let transporter = nodemailer.createTransport({
-                    service: "gmail",
-                    auth: {
-                        user: process.env.EMAIL, // generated ethereal user
-                        pass: process.env.PASSWORD, // generated ethereal password
-                    },
-                    tls: { rejectUnauthorized: false }
-                });
-                var info = {
-                    from: '', //Email người gửi
-                    to: `${user.email}`, // Email người nhận
-                    subject: 'LẤY LẠI MẬT KHẨU',
-                    //text: 'Nội dung thư, không có code html'
-                    html: `Cửa hàng Slyder.vn xin gửi lại mật khẩu của bạn. <br>
-            Mật khẩu mới: <b style="padding: 5px 7px; background: #eee; color: red"> ${newPassword} </b>`, // Nội dung thư, có thể có code html
-                };
-                transporter.sendMail(info, (err) => {
-                    if (err) {
-                        res.status(500).json({ err: err })
-                    } else {
-                        res.status(200).json({ success: true, message: `Mật khẩu mới đã gửi về ${user.email} thành công` });
-                    }
-                })
-            }
+                try {
+                    await sendEmail({
+                        email: user.email,
+                        subject: 'LẤY LẠI MẬT KHẨU',
+                        message: `Cửa hàng Slyder.vn xin gửi lại mật khẩu của bạn. <br>
+            Mật khẩu mới: <b style="padding: 5px 7px; background: #eee; color: red"> ${newPassword} </b>`,
+                    });
+
+                    res.status(200).json({ success: true, message: `Mật khẩu mới đã gửi về email ${user.email} thành công !` });
+                } catch (error) {
+                    res.status(500).json({ error: error });
+                }
+            };
         } catch (error) {
             res.status(500).json({ error: error });
         }

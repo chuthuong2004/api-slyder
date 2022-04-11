@@ -9,56 +9,57 @@ const orderController = {
     // * CREATE ORDER WITH USER CART
     newOrder: async(req, res) => {
         try {
-            const { fullName, phone, address } = req.body;
-            let shippingPrice = req.body.shippingPrice;
-            const shippingInfo = {
-                fullName: fullName,
-                phone: phone,
-                address: address
-            }
-            const cart = await CartModel.findOne({ user: req.user.id }).populate({
-                path: 'cartItems',
-                populate: { path: 'product' }
-            });
-            if (!cart) return res.status(404).json({
-                success: false,
-                message: 'Không tìm thấy cart !'
-            })
-            let totalPrice = 0;
+            // const { fullName, phone, address } = req.body;
+            // let shippingPrice = req.body.shippingPrice;
+            // const shippingInfo = {
+            //     fullName: fullName,
+            //     phone: phone,
+            //     address: address
+            // }
+            // const cart = await CartModel.findOne({ user: req.user.id }).populate({
+            //     path: 'cartItems',
+            //     populate: { path: 'product' }
+            // });
+            // if (!cart) return res.status(404).json({
+            //     success: false,
+            //     message: 'Không tìm thấy cart !'
+            // })
+            // let totalPrice = 0;
 
-            // * GET PRODUCT DETAILS
-            const orderItems = cart.cartItems.map((cartItem) => {
-                    totalPrice += (cartItem.product.price * cartItem.quantity);
-                    return {
-                        name: cartItem.product.name,
-                        price: cartItem.product.price,
-                        quantity: cartItem.quantity,
-                        size: cartItem.size,
-                        color: cartItem.color,
-                        image: cartItem.product.images[0].img,
-                        product: cartItem.product._id
-                    };
-                })
-                // * Delete cart
-            await cart.delete();
+            // // * GET PRODUCT DETAILS
+            // const orderItems = cart.cartItems.map((cartItem) => {
+            //         totalPrice += (cartItem.product.price * cartItem.quantity);
+            //         return {
+            //             name: cartItem.product.name,
+            //             price: cartItem.product.price,
+            //             quantity: cartItem.quantity,
+            //             size: cartItem.size,
+            //             color: cartItem.color,
+            //             image: cartItem.product.images[0].img,
+            //             product: cartItem.product._id
+            //         };
+            //     })
+            //     // * Delete cart
+            // await cart.delete();
 
-            // * Check price shipping
-            if (!shippingPrice) shippingPrice = 30000;
-            totalPrice += shippingPrice;
+            // // * Check price shipping
+            // if (!shippingPrice) shippingPrice = 30000;
+            // totalPrice += shippingPrice;
 
-            // * create new order model
-            const newOrder = new OrderModel({
-                    shippingInfo: shippingInfo,
-                    orderItems: orderItems,
-                    user: req.user.id,
-                    shippingPrice: shippingPrice,
-                    totalPrice: totalPrice,
-                })
-                // * Save order
-            await newOrder.save();
+            // // * create new order model
+            // const newOrder = new OrderModel({
+            //         shippingInfo: shippingInfo,
+            //         orderItems: orderItems,
+            //         user: req.user.id,
+            //         shippingPrice: shippingPrice,
+            //         totalPrice: totalPrice,
+            //     })
+            //     // * Save order
+            // await newOrder.save();
 
             // * Tìm User
             const user = await UserModel.findById(req.user.id);
+            return res.status(200).json(user);
             if (!user) return res.status(404).json({
                     success: false,
                     message: 'User not found'
@@ -113,8 +114,14 @@ const orderController = {
     // ! UPDATE ORDER - UPDATE AMOUNT PRODUCT
     updateOrder: async(req, res) => {
         const order = await OrderModel.findById(req.params.id);
-        if (!order) return res.status(404).json({ error: 'Không tìm thấy đơn đặt hàng với ID trên' })
-        if (order.orderStatus === 'Delivered') return res.status(400).json({ error: 'Bạn đã giao đơn đặt hàng này' })
+        if (!order) return res.status(404).json({
+            success: false,
+            message: 'Không tìm thấy đơn đặt hàng với ID trên'
+        })
+        if (order.orderStatus === 'Delivered') return res.status(400).json({
+            success: false,
+            message: 'Bạn đã giao đơn đặt hàng này'
+        })
         if (req.body.status === 'Shipped') {
             order.orderItems.forEach(async(order) => {
                 await updateAmount(order.product, order.size, order.color, order.quantity);
