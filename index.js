@@ -24,6 +24,7 @@ app.use(cookieParser())
 app.use(bodyParser.json({ limit: '30mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '30mb' }));
 app.use(cors());
+app.options('*', cors());
 app.use(morgan("common"));
 
 // * ROUTES IMPORT
