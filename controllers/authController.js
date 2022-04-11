@@ -60,7 +60,7 @@ const authController = {
                 refreshTokens.push(refreshToken);
                 res.cookie('refreshToken', refreshToken, {
                     httpOnly: true,
-                    secure: false, // deloy thì set true
+                    secure: true, // deloy thì set true
                     path: '/',
                     // sameSite: 'strict',
                 })
