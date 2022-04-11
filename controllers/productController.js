@@ -1,6 +1,8 @@
+import { CartModel } from "../models/CartModel.js";
 import { CategoryModel } from "../models/CategoryModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { ReviewModel } from "../models/ReviewModel.js";
+import { UserModel } from "../models/UserModal.js";
 const productController = {
     // ! GET ALL PRODUCT ----- PAGINATION
     getAllProduct: async(req, res) => {
@@ -136,9 +138,21 @@ const productController = {
         }
     },
 
-    // ! DELETE PRODUCT kiểm tra sản phẩm xóa có nằm trong cart không, nếu có thì hủy cart đó
+    // ! DELETE PRODUCT --- HANDLE DELETE IMAGES
     forceDestroyProduct: async(req, res, next) => {
         try {
+            const carts = await CartModel.find({ 'cartItems.$.product': req.params.id });
+
+            // * DELETE ITEM FROM CART SUCCESSFULLY
+            if (carts)
+                carts.forEach(async(cart) => {
+                    if (cart.cartItems.length == 1) {
+                        await UserModel.updateOne({ cart: cart._id }, { cart: null });
+                        await CartModel.findByIdAndDelete(cart._id);
+                    } else {
+                        await CartModel.updateMany({ 'cartItems.$.product': req.params.id }, { '$pull': { 'cartItems': { 'product': req.params.id } } })
+                    }
+                });
             await CategoryModel.updateMany({
                 products: req.params.id
             }, {
@@ -161,6 +175,7 @@ const productController = {
             res.status(500).json({ error: error });
         }
     },
+
     // * RESTORE PRODUCT
     restoreProduct: async(req, res, next) => {
         try {

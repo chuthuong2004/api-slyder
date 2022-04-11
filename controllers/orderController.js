@@ -86,19 +86,23 @@ const orderController = {
     },
 
     // * GET MY ORDER
-    myOrders: async(req, res) => {
-        const orders = await OrderModel.findById(req.user.id);
+    myOrder: async(req, res) => {
+        const orders = await OrderModel.find({ user: req.user.id });
+
+        // tổng tiền tất cả đơn hàng
+        const totalAmount = orders.reduce((total, order) => total + order.totalPrice, 0);
         res.status(200).json({
             success: true,
-            orders,
+            totalAmount,
+            orders
         });
     },
 
     // * GET ALL ORDERS
     getAllOrders: async(req, res) => {
         const orders = await OrderModel.find();
-        let totalAmount = 0;
-        orders.forEach((order) => totalAmount += order.totalPrice);
+        // tổng tiền tất cả đơn hàng
+        const totalAmount = orders.reduce((total, order) => total + order.totalPrice, 0);
         res.status(200).json({
             success: true,
             totalAmount,

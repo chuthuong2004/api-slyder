@@ -3,6 +3,8 @@ import { UserModel } from "../models/UserModal.js";
 
 
 const cartController = {
+
+    // * GET ALL CART
     getAllCart: async(req, res) => {
         try {
             const carts = await CartModel.find().populate({
@@ -12,11 +14,15 @@ const cartController = {
                 path: 'cartItems',
                 populate: { path: 'product' } // select: '_id name price discount'
             });
-            res.status(200).json(carts);
+            res.status(200).json({
+                success: false,
+                carts
+            });
         } catch (err) {
             res.status(500).json({ error: err });
         }
     },
+    // * GET A CART
     getCart: async(req, res) => {
         try {
             const cart = await CartModel.findById(req.params.id).populate({
@@ -26,11 +32,13 @@ const cartController = {
                 path: 'cartItems',
                 populate: { path: 'product', select: '_id name price discount' }
             });
-            res.status(200).json(cart);
+            res.status(200).json({ success: true, cart });
         } catch (err) {
             res.status(500).json({ error: err });
         }
     },
+
+    // * ADD ITEM TO CART
     addItemToCart: async(req, res) => {
         try {
             const cartItems = req.body;
@@ -40,7 +48,7 @@ const cartController = {
                 const product = cartItems.product;
                 const color = cartItems.color;
                 const size = cartItems.size;
-                const item = cart.cartItems.find(c => (c.product == product && c.color == color) && (c.product == product && c.size == size) && (c.color == color && c.size == size));
+                const item = cart.cartItems.find(cartItem => (cartItem.product == product && cartItem.color == color && cartItem.size == size));
                 let condition, update;
                 if (item) {
                     condition = {
@@ -65,7 +73,11 @@ const cartController = {
                     .exec((error, _cart) => {
                         if (error) return res.status(400).json({ error: error })
                         if (_cart) {
-                            return res.status(200).json({ message: "Updated cart successfully", _cart })
+                            return res.status(200).json({
+                                success: true,
+                                message: "Updated cart successfully",
+                                cart: _cart
+                            })
                         }
                     });
 
@@ -80,12 +92,17 @@ const cartController = {
                     const user = await UserModel.findById(req.user.id);
                     await user.updateOne({ cart: newCart._id });
                 }
-                res.status(200).json(newCart);
+                res.status(200).json({
+                    success: true,
+                    cart: newCart
+                });
             }
         } catch (err) {
             res.status(500).json({ error: err });
         }
     },
+
+    // * UPDATE CART
     updateCart: async(req, res) => {
         try {
             const cart = await CartModel.findOne({ user: req.user.id })
@@ -108,7 +125,11 @@ const cartController = {
                             .exec((error, _cart) => {
                                 if (error) return res.status(400).json({ error: error })
                                 if (_cart) {
-                                    return res.status(200).json({ message: "Updated cart successfully", _cart })
+                                    return res.status(200).json({
+                                        success: true,
+                                        message: "Updated cart successfully",
+                                        cart: _cart
+                                    })
                                 }
                             })
                     }
@@ -119,17 +140,23 @@ const cartController = {
             res.status(500).json({ error: err });
         }
     },
-    removeToCart: async(req, res) => {
+
+    // * REMOVE ITEM FORM CART
+    removeItemFromCart: async(req, res) => {
         try {
             const cart = await CartModel.findOne({ user: req.user.id })
             if (cart) { // nếu cart tồn tại thì update số lượng product trong cart
                 const cartItemId = req.params.id;
                 const cartItem = cart.cartItems.find(c => c._id = cartItemId);
                 if (cartItem) {
+                    // CHECK SỐ LƯỢNG ITEM TRONG CART
                     if (cart.cartItems.length == 1) {
                         await UserModel.updateOne({ cart: cart._id }, { cart: null });
                         await CartModel.findByIdAndDelete(cart._id);
-                        return res.status(200).json({ message: 'Deleted cart successfully' })
+                        return res.status(200).json({
+                            success: true,
+                            message: 'Deleted cart successfully'
+                        })
                     }
                     let condition = {
                         'user': req.user.id,
@@ -142,12 +169,19 @@ const cartController = {
                         .exec((error, _cart) => {
                             if (error) return res.status(400).json({ error: error })
                             if (_cart) {
-                                return res.status(200).json({ message: "Updated cart successfully", _cart })
+                                return res.status(200).json({
+                                    success: true,
+                                    message: "Updated cart item successfully",
+                                    cart: _cart
+                                })
                             }
                         });
 
                 } else {
-                    return res.status(200).json({ error: 'cart item not found' })
+                    return res.status(200).json({
+                        success: false,
+                        error: 'cart item not found'
+                    })
                 }
             }
 
@@ -155,11 +189,16 @@ const cartController = {
             res.status(500).json({ error: error })
         }
     },
+
+    // * DELETE CART
     deleteCart: async(req, res) => {
         try {
             await UserModel.updateOne({ cart: req.params.id }, { cart: null });
             await CartModel.findByIdAndDelete(req.params.id);
-            res.status(200).json({ message: 'Deleted cart successfully' })
+            res.status(200).json({
+                success: true,
+                message: 'Deleted cart successfully'
+            })
         } catch (error) {
             res.status(500).json({ error: error })
         }

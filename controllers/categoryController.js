@@ -1,5 +1,6 @@
 import { CatalogModel } from "../models/CatalogModel.js";
 import { CategoryModel } from "../models/CategoryModel.js";
+import { ProductModel } from "../models/ProductModel.js";
 const categoryController = {
 
     // ! GET ALL CATEGORIES --- PAGINATION
@@ -115,10 +116,13 @@ const categoryController = {
             }, {
                 $pull: { categories: req.params.id }
             })
+            await ProductModel.updateOne({
+                category: req.params.id,
+            }, { category: null })
             await CategoryModel.findByIdAndDelete(req.params.id);
             res.status(200).json({ message: 'Deleted category successfully' })
         } catch (err) {
-            res.status(500).json({ error: error });
+            res.status(500).json({ error: err });
         }
     }
 }

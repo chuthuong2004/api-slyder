@@ -9,7 +9,7 @@ router.get('/reviews', reviewController.getAllReview); // lấy tất cả sản
 // ! GET REVIEW
 router.get('/review/:id', reviewController.getAReview); // lấy sản phẩm dựa trên :slug (name của producdt)
 
-// ! CREATE REVIEW
+// ! CREATE REVIEW ---  midleware để đã giao hàng mới được thêm nhận xét
 router.post('/review/new', middlewareController.verifyToken, reviewController.addReview); // thêm mới 1 product
 
 // ! UPDATE REVIEW
