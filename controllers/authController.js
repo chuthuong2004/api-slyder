@@ -9,7 +9,7 @@ const generateAccessToken = (user) => {
     return jwt.sign({
         id: user.id,
         isAdmin: user.isAdmin,
-    }, process.env.JWT_ACCESS_KEY, { expiresIn: '1d' });
+    }, process.env.JWT_ACCESS_KEY, { expiresIn: '30s' });
 }
 
 // GENERATE REFRESH TOKEN
