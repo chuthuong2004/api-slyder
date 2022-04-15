@@ -60,9 +60,9 @@ const authController = {
                 refreshTokens.push(refreshToken);
                 res.cookie('refreshToken', refreshToken, {
                     httpOnly: true,
-                    secure: true, // deloy thì set true
+                    secure: false, // deloy thì set true
                     path: '/',
-                    // sameSite: 'strict',
+                    sameSite: 'strict',
                 })
                 const { password, ...other } = user._doc;
                 res.status(200).json({...other, accessToken });
