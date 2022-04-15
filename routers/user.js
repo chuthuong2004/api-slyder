@@ -4,7 +4,7 @@ import userController from '../controllers/userController.js';
 const router = express.Router();
 
 // * GET ALL USER ---- Admin
-router.get('/admin/users', userController.getAllUser);
+router.get('/admin/users', middlewareController.verifyTokenAndAdminAuth, userController.getAllUser);
 
 // * GET A USER ---- Admin
 router.get('/admin/user/:id', middlewareController.verifyTokenAndAdminAuth, userController.getUser);

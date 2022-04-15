@@ -3,70 +3,108 @@ import { CartModel } from "../models/CartModel.js";
 import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { UserModel } from "../models/UserModal.js";
+import { sendEmail } from "../utils/sendMail.js";
 
 const orderController = {
 
     // * CREATE ORDER WITH USER CART
     newOrder: async(req, res) => {
         try {
-            // const { fullName, phone, address } = req.body;
-            // let shippingPrice = req.body.shippingPrice;
-            // const shippingInfo = {
-            //     fullName: fullName,
-            //     phone: phone,
-            //     address: address
-            // }
-            // const cart = await CartModel.findOne({ user: req.user.id }).populate({
-            //     path: 'cartItems',
-            //     populate: { path: 'product' }
-            // });
-            // if (!cart) return res.status(404).json({
-            //     success: false,
-            //     message: 'Không tìm thấy cart !'
-            // })
-            // let totalPrice = 0;
+            const { fullName, phone, address } = req.body;
+            let shippingPrice = req.body.shippingPrice;
+            const shippingInfo = {
+                fullName: fullName,
+                phone: phone,
+                address: address
+            }
+            const cart = await CartModel.findOne({ user: req.user.id }).populate({
+                path: 'cartItems',
+                populate: { path: 'product' }
+            });
+            if (!cart) return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy cart !'
+            })
+            let totalPrice = 0;
 
-            // // * GET PRODUCT DETAILS
-            // const orderItems = cart.cartItems.map((cartItem) => {
-            //         totalPrice += (cartItem.product.price * cartItem.quantity);
-            //         return {
-            //             name: cartItem.product.name,
-            //             price: cartItem.product.price,
-            //             quantity: cartItem.quantity,
-            //             size: cartItem.size,
-            //             color: cartItem.color,
-            //             image: cartItem.product.images[0].img,
-            //             product: cartItem.product._id
-            //         };
-            //     })
-            //     // * Delete cart
-            // await cart.delete();
+            // * GET PRODUCT DETAILS
+            const orderItems = cart.cartItems.map((cartItem) => {
+                    totalPrice += (cartItem.product.price * cartItem.quantity);
+                    return {
+                        name: cartItem.product.name,
+                        price: cartItem.product.price,
+                        quantity: cartItem.quantity,
+                        size: cartItem.size,
+                        color: cartItem.color,
+                        image: cartItem.product.images[0].img,
+                        product: cartItem.product._id
+                    };
+                })
+                // * Delete cart
+            await cart.delete();
 
-            // // * Check price shipping
-            // if (!shippingPrice) shippingPrice = 30000;
-            // totalPrice += shippingPrice;
+            // * Check price shipping
+            if (!shippingPrice) shippingPrice = 30000;
 
-            // // * create new order model
-            // const newOrder = new OrderModel({
-            //         shippingInfo: shippingInfo,
-            //         orderItems: orderItems,
-            //         user: req.user.id,
-            //         shippingPrice: shippingPrice,
-            //         totalPrice: totalPrice,
-            //     })
-            //     // * Save order
-            // await newOrder.save();
+            // * create new order model
+            const newOrder = new OrderModel({
+                    shippingInfo: shippingInfo,
+                    orderItems: orderItems,
+                    user: req.user.id,
+                    shippingPrice: shippingPrice,
+                    totalPrice: totalPrice,
+                })
+                // * Save order
+            await newOrder.save();
 
             // * Tìm User
             const user = await UserModel.findById(req.user.id);
-            return res.status(200).json(user);
             if (!user) return res.status(404).json({
                     success: false,
                     message: 'User not found'
                 })
                 // * Push order vào user
+            var html = '';
+            orderItems.forEach(orderItem => {
+                html += `
+                    <tr>
+                    <td style=" border: 1px solid black; border-radius: 10px; text-align:center;">${orderItem.name}</td>
+                    <td style=" border: 1px solid black; border-radius: 10px; text-align:center;">${orderItem.price}</td>
+                    <td style=" border: 1px solid black; border-radius: 10px; text-align:center;">${orderItem.quantity}</td>
+                    <tr>`
+            })
             await user.updateOne({ $push: { orders: newOrder._id } })
-
+            const message = `<p>Đơn hàng của ${fullName} đã đặt thành công</p>
+                
+                <table cellspacing="5" style=" border: 1px solid black; border-radius: 10px;">
+                    <tr >
+                        <th style=" border: 1px solid black; border-radius: 10px; text-align:center;">Tên</th>
+                        <th style=" border: 1px solid black; border-radius: 10px; text-align:center;">Giá</th>
+                        <th style=" border: 1px solid black; border-radius: 10px; text-align:center;">Số Lượng</th>
+                    </tr> ${html}
+                    <tr>
+                        <td colspan = "2" style=" border: 1px solid black; border-radius: 10px; text-align:right;">Tổng tiền: </td>
+                        <td style=" border: 1px solid black; border-radius: 10px; text-align:center;"><b> ${totalPrice} </b></td>
+                    </tr> 
+                    <tr>
+                    <td colspan = "2" style=" border: 1px solid black; border-radius: 10px; text-align:right;">Phí vận chuyển: </td>
+                    <td style=" border: 1px solid black; border-radius: 10px; text-align:center;"><b> ${shippingPrice} </b></td>
+                    </tr> 
+                    <tr>
+                    <td colspan = "2" style=" border: 1px solid black; border-radius: 10px; text-align:right;">Tổng thanh toán</td>
+                    <td style=" border: 1px solid black; border-radius: 10px; text-align:center;"><b> ${shippingPrice+totalPrice} </b></td>
+                    </tr> 
+                    </table>
+                    `;
+            try {
+                await sendEmail({
+                    email: user.email,
+                    subject: 'THÔNG BÁO TỪ SLYDER',
+                    message: message
+                })
+            } catch (error) {
+                res.status(500).json({ error: error })
+            }
             return res.status(200).json({ success: true, order: newOrder });
         } catch (error) {
             res.status(500).json({ error: error })
