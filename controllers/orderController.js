@@ -172,6 +172,7 @@ const orderController = {
         await order.save({ validateBeforeSave: false });
         res.status(200).json({
             success: true,
+            message: 'Update order successfully'
         });
     },
 
