@@ -58,12 +58,7 @@ const authController = {
                 const accessToken = generateAccessToken(user);
                 const refreshToken = generateRefreshToken(user);
                 refreshTokens.push(refreshToken);
-                res.cookie('refreshToken', refreshToken, {
-                    httpOnly: true,
-                    secure: true, // deloy thì set true
-                    path: '/',
-                    // sameSite: 'strict',
-                })
+                res.cookie('refreshToken', refreshToken)
                 const { password, ...other } = user._doc;
                 res.status(200).json({...other, accessToken });
             }
