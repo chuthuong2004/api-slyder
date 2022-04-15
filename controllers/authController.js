@@ -58,7 +58,13 @@ const authController = {
                 const accessToken = generateAccessToken(user);
                 const refreshToken = generateRefreshToken(user);
                 refreshTokens.push(refreshToken);
-                res.cookie('refreshToken', refreshToken)
+                res.cookie('refreshToken', refreshToken, {
+                    httpOnly: true,
+                    secure: true, // deloy thì set true
+                    sameSite: 'strict',
+                    path: '/',
+                    // sameSite: 'strict',
+                })
                 const { password, ...other } = user._doc;
                 res.status(200).json({...other, accessToken });
             }
@@ -71,6 +77,8 @@ const authController = {
     // * REFRESH TOKEN
     requestRefreshToken: async(req, res) => {
         // lấy refreshToken từ user
+
+        console.log(req.cookies.refreshToken)
         const refreshToken = req.cookies.refreshToken;
         if (!refreshToken) {
             return res.status(401).json({ success: false, message: 'Bạn chưa xác thực !' });
