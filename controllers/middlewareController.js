@@ -25,7 +25,7 @@ const middlewareController = {
                 next();
             })
         } else {
-            res.status(401).json({ message: 'Vui lòng đăng nhập !' });
+            return res.status(401).json({ message: 'Vui lòng đăng nhập !' });
         }
     },
     verifyTokenAndAdminAuth: (req, res, next) => {
@@ -33,7 +33,7 @@ const middlewareController = {
             if (req.user.isAdmin) {
                 next();
             } else {
-                res.status(403).json({ message: 'Bạn không có quyền Admin' });
+                return res.status(403).json({ message: 'Bạn không có quyền Admin' });
             }
         });
     },
