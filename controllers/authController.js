@@ -65,7 +65,7 @@ const authController = {
                     sameSite: 'strict',
                 })
                 const { password, ...other } = user._doc;
-                res.status(200).json({...other, accessToken });
+                res.status(200).json({...other, accessToken, refreshToken });
             }
 
         } catch (error) {
