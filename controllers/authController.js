@@ -78,7 +78,7 @@ const authController = {
         // lấy refreshToken từ user
 
         console.log(req.body.refreshToken)
-        const refreshToken = req.cookies.refreshToken;
+        const refreshToken = req.body.refreshToken;
         if (!refreshToken) {
             return res.status(401).json({ success: false, message: 'Bạn chưa xác thực !' });
         }
