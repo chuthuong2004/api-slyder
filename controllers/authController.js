@@ -9,7 +9,7 @@ const generateAccessToken = (user) => {
     return jwt.sign({
         id: user.id,
         isAdmin: user.isAdmin,
-    }, process.env.JWT_ACCESS_KEY, { expiresIn: '30s' });
+    }, process.env.JWT_ACCESS_KEY, { expiresIn: '1d' });
 }
 
 // GENERATE REFRESH TOKEN
@@ -76,10 +76,8 @@ const authController = {
     // * REFRESH TOKEN
     requestRefreshToken: async(req, res) => {
         // lấy refreshToken từ user
-
-        // console.log(req.body.refreshToken)
-        const refreshToken = req.body.refreshToken;
-        // const refreshToken = req.cookies.refreshToken; // sửa lại 
+        // const refreshToken = req.body.refreshToken;
+        const refreshToken = req.cookies.refreshToken; // sửa lại 
         if (!refreshToken) {
             return res.status(401).json({ success: false, message: 'Bạn chưa xác thực !' });
         }

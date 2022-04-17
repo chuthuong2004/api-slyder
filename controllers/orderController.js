@@ -29,10 +29,11 @@ const orderController = {
 
             // * GET PRODUCT DETAILS
             const orderItems = cart.cartItems.map((cartItem) => {
-                    totalPrice += (cartItem.product.price * cartItem.quantity);
+                    totalPrice += (cartItem.product.price - (cartItem.product.price * (cartItem.product.discount / 100))) * cartItem.quantity;
                     return {
                         name: cartItem.product.name,
                         price: cartItem.product.price,
+                        discount: cartItem.product.discount,
                         quantity: cartItem.quantity,
                         size: cartItem.size,
                         color: cartItem.color,
@@ -141,7 +142,7 @@ const orderController = {
     getAllOrders: async(req, res) => {
         const orders = await OrderModel.find();
         // tổng tiền tất cả đơn hàng
-        const totalAmount = orders.reduce((total, order) => total + order.totalPrice, 0);
+        const totalAmount = orders.reduce((total, order) => total + (order.totalPrice + order.shippingPrice), 0);
         res.status(200).json({
             success: true,
             totalAmount,
@@ -149,7 +150,7 @@ const orderController = {
         });
     },
 
-    // ! UPDATE ORDER - UPDATE AMOUNT PRODUCT
+    // * UPDATE ORDER - UPDATE AMOUNT PRODUCT OK
     updateOrder: async(req, res) => {
         const order = await OrderModel.findById(req.params.id);
         if (!order) return res.status(404).json({
@@ -160,13 +161,14 @@ const orderController = {
             success: false,
             message: 'Bạn đã giao đơn đặt hàng này'
         })
-        if (req.body.status === 'Shipped') {
+        if (req.body.orderStatus === 'Shipping') {
             order.orderItems.forEach(async(order) => {
                 await updateAmount(order.product, order.size, order.color, order.quantity);
             })
         }
-        order.orderStatus = req.body.status;
-        if (req.body.status === 'Delivered') {
+        if (req.body.orderStatus === 'Delivery') {}
+        order.orderStatus = req.body.orderStatus;
+        if (req.body.orderStatus === 'Delivered') {
             order.deliveredAt = Date.now();
         }
         await order.save({ validateBeforeSave: false });
@@ -195,27 +197,19 @@ const orderController = {
 }
 
 // ! UPDATE AMOUNT PRODUCT WITH SIZE COLOR
-async function updateAmount(idProduct, size, color, quantity) {
+const updateAmount = async(idProduct, size, color, quantity) => {
+    console.log(idProduct, size, color, quantity)
     const product = await ProductModel.findById(idProduct);
-    const detail = product.detail.find(prod => prod.size === size);
-    let updateAmount = 0;
-    if (!detail) return res.status(404).json({ error: `Không tìm thấy size ${size} trong sản phẩm` });
-
-    const detailColor = detail.detailColor.find(item => item.color === color);
-    if (!detailColor) return res.status(404).json({ error: `Không tìm thấy màu [${color}] trong size [${size}]` })
-    updateAmount = detailColor.amount - quantity;
-    let condition = {
-        '_id': idProduct,
-        'detail.$.size': detail.size,
-    }
-    let update = {
-        '$set': {
-            'detail.$.size': detail.size,
-            'detail.$.detailColor.$.color': detailColor.color,
-            'detail.$.detailColor.$.amount': updateAmount
+    product.detail.forEach(item => {
+        if (item.size === size) {
+            item.detailColor.forEach(itemDetailColor => {
+                if (itemDetailColor.color.toLowerCase() === color.toLowerCase()) {
+                    itemDetailColor.amount -= quantity;
+                }
+            })
         }
-    }
-    await ProductModel.findOneAndUpdate(condition, update, { new: true });
+    })
+    await product.save();
 
 }
 

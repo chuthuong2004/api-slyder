@@ -147,26 +147,25 @@ const userController = {
                 password
             );
             if (!validPassword) {
-                res.status(404).json({
+                return res.status(404).json({
                     success: false,
                     message: "Mật khẩu hiện tại không đúng !"
                 })
-            } else {
-                const comfirmPassword = req.body.comfirmPassword;
-                const newPassword = req.body.newPassword;
-                if (!(comfirmPassword === newPassword)) {
-                    res.status(404).json({
-                        success: false,
-                        message: "Mật khẩu nhập lại không khớp !"
-                    })
-                } else {
-                    const hasded = await bcrypt.hash(newPassword, salt);
-                    const newUser = await UserModel.findByIdAndUpdate(req.params.id, { password: hasded }, { new: true });
-                    await newUser.save();
-                    res.status(200).json(user);
-                }
             }
-
+            const comfirmPassword = req.body.comfirmPassword;
+            const newPassword = req.body.newPassword;
+            if (!(comfirmPassword === newPassword)) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Mật khẩu nhập lại không khớp !"
+                })
+            }
+            const hasded = await bcrypt.hash(newPassword, salt);
+            const newUser = await UserModel.findByIdAndUpdate(req.user.id, { password: hasded }, { new: true });
+            return res.status(200).json({
+                success: true,
+                message: 'Password changed successfully'
+            });
         } catch (error) {
             res.status(500).json({ error: error });
         }
