@@ -37,7 +37,20 @@ const cartController = {
             res.status(500).json({ error: err });
         }
     },
-
+    getMyCart: async(req, res) => {
+        try {
+            const cart = await CartModel.findById(req.user.id).populate({
+                path: 'user',
+                select: '_id username email isAdmin',
+            }).populate({
+                path: 'cartItems',
+                populate: { path: 'product', select: '_id name price discount' }
+            });
+            res.status(200).json({ success: true, cart });
+        } catch (err) {
+            res.status(500).json({ error: err });
+        }
+    },
     // * ADD ITEM TO CART
     addItemToCart: async(req, res) => {
         try {
