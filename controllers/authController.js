@@ -76,8 +76,8 @@ const authController = {
     // * REFRESH TOKEN
     requestRefreshToken: async(req, res) => {
         // lấy refreshToken từ user
-        // const refreshToken = req.body.refreshToken;
-        const refreshToken = req.cookies.refreshToken; // sửa lại 
+        const refreshToken = req.body.refreshToken;
+        // const refreshToken = req.cookies.refreshToken; // sửa lại 
         if (!refreshToken) {
             return res.status(401).json({ success: false, message: 'Bạn chưa xác thực !' });
         }
