@@ -9,7 +9,7 @@ router.get('/carts', cartController.getAllCart);
 // * GET A CART
 router.get('/cart/:id', cartController.getCart);
 
-router.get('cart/me', middlewareController.verifyToken, cartController.getMyCart)
+router.get('/cart/me', middlewareController.verifyToken, cartController.getMyCart)
     // * ADD ITEM TO CART
 router.post('/cart/add-to-cart', middlewareController.verifyToken, middlewareController.validateAddToCart,
     middlewareController.isRequestValidated, cartController.addItemToCart);
