@@ -118,7 +118,10 @@ const orderController = {
             "user",
             "username email"
         );
-        if (!order) return res.status(404).json({ error: 'Order not found with this ID' })
+        if (!order) return res.status(404).json({
+            success: false,
+            message: 'Order not found with this ID'
+        })
         res.status(200).json({
             success: true,
             order,
@@ -150,9 +153,12 @@ const orderController = {
         });
     },
 
-    // * UPDATE ORDER - UPDATE AMOUNT PRODUCT OK
+    // ! UPDATE ORDER - UPDATE AMOUNT PRODUCT ---- handle send email
     updateOrder: async(req, res) => {
-        const order = await OrderModel.findById(req.params.id);
+        const order = await OrderModel.findById(req.params.id).populate(
+            "user",
+            "username email"
+        );;
         if (!order) return res.status(404).json({
             success: false,
             message: 'Không tìm thấy đơn đặt hàng với ID trên'
@@ -165,11 +171,27 @@ const orderController = {
             order.orderItems.forEach(async(order) => {
                 await updateAmount(order.product, order.size, order.color, order.quantity);
             })
+            sendEmail({
+                email: order.user.email,
+                subject: 'ĐƠN HÀNG CỦA BẠN ĐANG VẬN CHUYỂN',
+                message: 'đơn hàng của bạn đang vận chuyển'
+            })
         }
-        if (req.body.orderStatus === 'Delivery') {}
+        if (req.body.orderStatus === 'Delivery') {
+            sendEmail({
+                email: order.user.email,
+                subject: 'ĐƠN HÀNG CỦA BẠN ĐANG GIAO',
+                message: 'đơn hàng của bạn đang giao'
+            })
+        }
         order.orderStatus = req.body.orderStatus;
         if (req.body.orderStatus === 'Delivered') {
             order.deliveredAt = Date.now();
+            sendEmail({
+                email: order.user.email,
+                subject: 'ĐƠN HÀNG CỦA BẠN ĐÃ GIAO',
+                message: 'đơn hàng của bạn đã được giao thành công'
+            })
         }
         await order.save({ validateBeforeSave: false });
         res.status(200).json({
@@ -178,10 +200,13 @@ const orderController = {
         });
     },
 
-    // * DELETE ORDER 
+    // * DELETE ORDER --- DONE
     deleteOrder: async(req, res) => {
         const order = await OrderModel.findById(req.params.id);
-        if (!order) return res.status(404).json({ error: 'Không tìm thấy đơn đặt hàng với ID được chỉ định' })
+        if (!order) return res.status(404).json({
+            success: false,
+            message: 'Không tìm thấy đơn đặt hàng với ID được chỉ định'
+        })
         await UserModel.updateMany({
             orders: req.params.id
         }, {
@@ -196,7 +221,7 @@ const orderController = {
     }
 }
 
-// ! UPDATE AMOUNT PRODUCT WITH SIZE COLOR
+// * UPDATE AMOUNT PRODUCT WITH SIZE COLOR --- DONE
 const updateAmount = async(idProduct, size, color, quantity) => {
     console.log(idProduct, size, color, quantity)
     const product = await ProductModel.findById(idProduct);
@@ -210,7 +235,6 @@ const updateAmount = async(idProduct, size, color, quantity) => {
         }
     })
     await product.save();
-
 }
 
 export default orderController;

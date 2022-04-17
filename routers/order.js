@@ -6,11 +6,11 @@ const router = express.Router();
 // * NEW ORDER
 router.post('/order/new', middlewareController.verifyToken, orderController.newOrder);
 
+// * MY ORDER
+router.get('/order/me', middlewareController.verifyToken, orderController.myOrder);
+
 // * GET SINGLE ORDER
 router.get('/order/:id', middlewareController.verifyToken, orderController.getSingleOrder);
-
-// * MY ORDER
-router.get('/orders/me', middlewareController.verifyToken, orderController.myOrder);
 
 // * GET ALL ORDERS --- ADMIN
 router.get('/admin/orders', middlewareController.verifyTokenAndAdminAuth, orderController.getAllOrders);

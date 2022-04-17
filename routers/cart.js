@@ -8,6 +8,7 @@ router.get('/carts', cartController.getAllCart);
 
 
 router.get('/cart/my-cart', middlewareController.verifyToken, cartController.getMyCart);
+
 // * GET A CART
 router.get('/cart/:id', cartController.getCart);
 
