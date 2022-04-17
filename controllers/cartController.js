@@ -15,7 +15,7 @@ const cartController = {
                 populate: { path: 'product' } // select: '_id name price discount'
             });
             res.status(200).json({
-                success: false,
+                success: true,
                 carts
             });
         } catch (err) {
