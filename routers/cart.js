@@ -6,11 +6,12 @@ const router = express.Router();
 // * GET ALL CART
 router.get('/carts', cartController.getAllCart);
 
+
+router.get('/cart/my-cart', middlewareController.verifyToken, cartController.getMyCart);
 // * GET A CART
 router.get('/cart/:id', cartController.getCart);
 
-router.get('/cart/me', middlewareController.verifyToken, cartController.getMyCart)
-    // * ADD ITEM TO CART
+// * ADD ITEM TO CART
 router.post('/cart/add-to-cart', middlewareController.verifyToken, middlewareController.validateAddToCart,
     middlewareController.isRequestValidated, cartController.addItemToCart);
 
