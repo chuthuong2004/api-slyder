@@ -39,7 +39,7 @@ const cartController = {
     },
     getMyCart: async(req, res) => {
         try {
-            const cart = await CartModel.findById(req.user.id).populate({
+            const cart = await CartModel.findOne({ user: req.user.id }).populate({
                 path: 'user',
                 select: '_id username email isAdmin',
             }).populate({
