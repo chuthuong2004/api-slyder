@@ -27,6 +27,8 @@ const reviewController = {
     },
     addReview: async(req, res) => {
         try {
+            // const products = req.product; // xử lý sau
+            // return res.status(200).json(products)
             const { content, product, start } = req.body;
 
             const review = new ReviewModel({
@@ -44,7 +46,10 @@ const reviewController = {
                 const user = await UserModel.findById(req.user.id);
                 await user.updateOne({ $push: { reviews: review._id } })
             }
-            res.status(200).json(review);
+            res.status(200).json({
+                success: true,
+                review
+            });
         } catch (error) {
             res.status(500).json({ error: error });
         }

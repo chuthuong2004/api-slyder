@@ -1,5 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { check, validationResult } from 'express-validator';
+import { OrderModel } from '../models/OrderModel.js';
+import { ProductModel } from '../models/ProductModel.js';
+import { CartModel } from '../models/CartModel.js';
 
 function validateEmail(email) {
     let regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -132,6 +135,59 @@ const middlewareController = {
             return res.status(400).json({ errors: errors.array()[0].msg })
         } else {
             next();
+        }
+    },
+    verifyOrderDelivered: async(req, res, next) => {
+        try {
+            const order = await OrderModel.findOne({ user: req.user.id })
+            if (!order) return res.status(404).json({
+                success: false,
+                message: 'Bạn chưa có đơn đặt hàng nào '
+            })
+            if (order.orderStatus === 'Delivered') {
+                var products = order.orderItems.map((item) => item.product)
+                req.products = products
+                next();
+            } else {
+                return res.status(400).json({ success: false, message: 'Đơn hàng của bạn chưa được giao' })
+            }
+
+        } catch (error) {
+            res.status(500).json({ error: error })
+        }
+    },
+
+    // Kiểm tra số lượng product này còn hay không
+    checkQuantityProduct: async(req, res, next) => {
+        try {
+            const cartItems = req.body;
+            const product = await ProductModel.findById(cartItems.product);
+            let isSuccess = false;
+            product.detail.forEach((item) => {
+                if (item.size === cartItems.size) {
+                    item.detailColor.forEach((item) => {
+                        if (item.color.toLowerCase() === cartItems.color.toLowerCase()) {
+                            if (item.amount > 0) isSuccess = true;
+                        }
+                    })
+                }
+            })
+            if (!isSuccess) return res.status(400).json({ success: false, message: 'Vui lòng kiểm tra lại sản phẩm ! có thể số lượng sản phẩm không hợp lệ' })
+            next();
+        } catch (error) {
+            res.status(500).json({ error: error })
+        }
+    },
+    checkCart: async(req, res, next) => {
+        try {
+            const cart = CartModel.findOne({ user: req.user.id });
+            if (!cart) return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy cart, vui lòng thêm giỏ hàng mới'
+            })
+            next();
+        } catch (error) {
+            res.status(500).json({ error: error })
         }
     }
 }

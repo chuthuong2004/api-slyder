@@ -14,7 +14,7 @@ router.get('/cart/:id', cartController.getCart);
 
 // * ADD ITEM TO CART
 router.post('/cart/add-to-cart', middlewareController.verifyToken, middlewareController.validateAddToCart,
-    middlewareController.isRequestValidated, cartController.addItemToCart);
+    middlewareController.isRequestValidated, middlewareController.checkQuantityProduct, cartController.addItemToCart);
 
 // * UPDATE CART
 router.put('/cart/:id', middlewareController.verifyToken, middlewareController.validateUpdateCart,

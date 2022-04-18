@@ -4,7 +4,7 @@ import orderController from '../controllers/orderController.js';
 const router = express.Router();
 
 // * NEW ORDER
-router.post('/order/new', middlewareController.verifyToken, orderController.newOrder);
+router.post('/order/new', middlewareController.verifyToken, middlewareController.checkCart, orderController.newOrder);
 
 // * MY ORDER
 router.get('/order/me', middlewareController.verifyToken, orderController.myOrder);

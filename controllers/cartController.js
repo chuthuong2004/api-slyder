@@ -1,4 +1,5 @@
 import { CartModel } from "../models/CartModel.js";
+import { ProductModel } from "../models/ProductModel.js";
 import { UserModel } from "../models/UserModal.js";
 
 
@@ -9,7 +10,7 @@ const cartController = {
         try {
             const carts = await CartModel.find().populate({
                 path: 'user',
-                select: '_id username email isAdmin',
+                select: '_id username email isAdmin ',
             }).populate({
                 path: 'cartItems',
                 populate: { path: 'product' } // select: '_id name price discount'
@@ -30,7 +31,7 @@ const cartController = {
                 select: '_id username email isAdmin',
             }).populate({
                 path: 'cartItems',
-                populate: { path: 'product', select: '_id name price discount' }
+                populate: { path: 'product', select: '_id name price discount images' }
             });
             res.status(200).json({ success: true, cart });
         } catch (err) {
@@ -44,7 +45,7 @@ const cartController = {
                 select: '_id username email isAdmin',
             }).populate({
                 path: 'cartItems',
-                populate: { path: 'product', select: '_id name price discount' }
+                populate: { path: 'product', select: '_id name price discount images' }
             });
             res.status(200).json({ success: true, cart });
         } catch (err) {
