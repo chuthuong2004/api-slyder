@@ -167,7 +167,7 @@ const middlewareController = {
                 if (item.size === cartItem.size) {
                     item.detailColor.forEach((item) => {
                         if (item.color.toLowerCase() === cartItem.color.toLowerCase()) {
-                            if (item.amount > 0) isSuccess = true;
+                            if (item.amount > 0 && item.amount >= cartItem.amount) isSuccess = true;
                         }
                     })
                 }
