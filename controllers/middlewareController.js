@@ -161,6 +161,7 @@ const middlewareController = {
     checkQuantityProduct: async(req, res, next) => {
         try {
             const cartItems = req.body;
+            return res.status(200).json(cartItems);
             const product = await ProductModel.findById(cartItems.product);
             let isSuccess = false;
             product.detail.forEach((item) => {
