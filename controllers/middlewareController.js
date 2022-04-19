@@ -161,9 +161,9 @@ const middlewareController = {
     checkQuantityProduct: async(req, res, next) => {
         try {
             const cartItem = req.body;
+            return res.status(200).json(cartItem.product);
             const product = await ProductModel.findOne({ _id: cartItem.product });
             let isSuccess = false;
-            return res.status(200).json(product);
             product.detail.forEach((item) => {
                 if (item.size === cartItem.size) {
                     item.detailColor.forEach((item) => {
