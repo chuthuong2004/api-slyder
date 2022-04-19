@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import { UserModel } from '../models/UserModal.js';
 import jwt from 'jsonwebtoken';
-import { validationResult } from 'express-validator';
 let refreshTokens = [];
 
 // GENERATE ACCESS TOKEN
@@ -24,10 +23,14 @@ const authController = {
     // * REGISTER
     registerUser: async(req, res) => {
         try {
+
+            // kiểm tra email tồn tại
             const isExistUser = await UserModel.findOne({ email: req.body.email });
             if (isExistUser) return res.status(400).json({ success: false, message: 'Email đã tồn tại !' });
             const { username, password, email } = req.body;
+
             const salt = await bcrypt.genSalt(10);
+            // mã hóa pasword
             const hasded = await bcrypt.hash(password, salt);
             const newUser = await new UserModel({
                 username,
@@ -35,7 +38,10 @@ const authController = {
                 password: hasded,
             });
             const user = await newUser.save();
-            res.status(200).json(user);
+            res.status(200).json({
+                success: true,
+                message: 'Đăng kí tài khoản thành công !'
+            });
         } catch (error) {
             res.status(500).json({ error: error });
         }
@@ -43,10 +49,12 @@ const authController = {
     // * LOGIN
     loginUser: async(req, res) => {
         try {
+            // kiểm tra username hợp lệ
             const user = await UserModel.findOne({ username: req.body.username }).select('+password');
             if (!user) {
                 return res.status(404).json({ success: false, message: 'Không tìm thấy user !' });
             }
+            // kiểm tra password có khớp với DB hay không ?
             const validPassword = await bcrypt.compare(
                 req.body.password,
                 user.password
@@ -54,6 +62,7 @@ const authController = {
             if (!validPassword) {
                 return res.status(404).json({ success: false, message: 'Mật khẩu không đúng !' });
             }
+            // nếu có user và khớp password
             if (user && validPassword) {
                 const accessToken = generateAccessToken(user);
                 const refreshToken = generateRefreshToken(user);

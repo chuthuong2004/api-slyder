@@ -139,26 +139,31 @@ const productController = {
     },
 
     // ! DELETE PRODUCT --- HANDLE DELETE IMAGES
-    forceDestroyProduct: async(req, res, next) => {
+    forceDestroyProduct: async(req, res) => {
         try {
+            // Tìm tất cả các carts có chứa product này
             const carts = await CartModel.find({ 'cartItems.$.product': req.params.id });
 
             // * DELETE ITEM FROM CART SUCCESSFULLY
-            if (carts)
+            if (carts) // 
                 carts.forEach(async(cart) => {
-                    if (cart.cartItems.length == 1) {
-                        await UserModel.updateOne({ cart: cart._id }, { cart: null });
-                        await CartModel.findByIdAndDelete(cart._id);
-                    } else {
-                        await CartModel.updateMany({ 'cartItems.$.product': req.params.id }, { '$pull': { 'cartItems': { 'product': req.params.id } } })
-                    }
-                });
+                if (cart.cartItems.length == 1) {
+                    await UserModel.updateOne({ cart: cart._id }, { cart: null });
+                    await CartModel.findByIdAndDelete(cart._id);
+                } else {
+                    await CartModel.updateMany({ 'cartItems.$.product': req.params.id }, { '$pull': { 'cartItems': { 'product': req.params.id } } })
+                }
+            });
+
+            // xóa product khỏi danh mục
             await CategoryModel.updateMany({
                 products: req.params.id
             }, {
                 $pull: { products: req.params.id }
             });
-            await ReviewModel.updateOne({ product: req.params.id }, { product: null });
+
+            // Tìm review của product này và xóa review
+            await ReviewModel.findOneAndDelete({ product: req.params.id });
             const deleteProduct = await ProductModel.deleteOne({ _id: req.params.id })
             if (!deleteProduct) {
                 res.status(404).json({

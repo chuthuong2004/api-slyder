@@ -177,18 +177,6 @@ const middlewareController = {
         } catch (error) {
             res.status(500).json({ error: error })
         }
-    },
-    checkCart: async(req, res, next) => {
-        try {
-            const cart = CartModel.findOne({ user: req.user.id });
-            if (!cart) return res.status(404).json({
-                success: false,
-                message: 'Không tìm thấy cart, vui lòng thêm giỏ hàng mới'
-            })
-            next();
-        } catch (error) {
-            res.status(500).json({ error: error })
-        }
     }
 }
 export default middlewareController;
