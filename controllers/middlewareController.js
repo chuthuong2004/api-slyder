@@ -160,14 +160,13 @@ const middlewareController = {
     // Kiểm tra số lượng product này còn hay không
     checkQuantityProduct: async(req, res, next) => {
         try {
-            const cartItems = req.body;
-            return res.status(200).json(cartItems);
-            const product = await ProductModel.findById(cartItems.product);
+            const cartItem = req.body;
+            const product = await ProductModel.findById(cartItem.product);
             let isSuccess = false;
             product.detail.forEach((item) => {
-                if (item.size === cartItems.size) {
+                if (item.size === cartItem.size) {
                     item.detailColor.forEach((item) => {
-                        if (item.color.toLowerCase() === cartItems.color.toLowerCase()) {
+                        if (item.color.toLowerCase() === cartItem.color.toLowerCase()) {
                             if (item.amount > 0) isSuccess = true;
                         }
                     })
