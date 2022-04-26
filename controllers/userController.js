@@ -152,9 +152,9 @@ const userController = {
                     message: "Mật khẩu hiện tại không đúng !"
                 })
             }
-            const comfirmPassword = req.body.comfirmPassword;
+            const confirmPassword = req.body.confirmPassword;
             const newPassword = req.body.newPassword;
-            if (!(comfirmPassword === newPassword)) {
+            if (!(confirmPassword === newPassword)) {
                 return res.status(404).json({
                     success: false,
                     message: "Mật khẩu nhập lại không khớp !"
