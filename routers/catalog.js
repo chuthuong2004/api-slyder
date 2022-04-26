@@ -19,7 +19,7 @@ router.post('admin/catalog/new', middlewareController.verifyTokenAndAdminAuth, m
 // * UPDATE CATALOG
 router.put('/admin/catalog/:id', middlewareController.verifyTokenAndAdminAuth, catalogController.updateCatalog);
 
-// * DELETE CATALOG
+// ! DELETE CATALOG ---delete category
 router.delete('/admin/catalog/:id', middlewareController.verifyTokenAndAdminAuth, catalogController.deleteCatalog);
 
 export default router;

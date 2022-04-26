@@ -140,20 +140,23 @@ const middlewareController = {
     verifyOrderDelivered: async(req, res, next) => {
         try {
             const order = await OrderModel.findOne({ user: req.user.id })
-            if (!order) return res.status(404).json({
-                success: false,
-                message: 'Bạn chưa có đơn đặt hàng nào '
-            })
-            if (order.orderStatus === 'Delivered') {
-                var products = order.orderItems.map((item) => item.product)
-                req.products = products
-                next();
-            } else {
-                return res.status(400).json({ success: false, message: 'Đơn hàng của bạn chưa được giao' })
+            if (!order) {
+                console.log('Không có order');
+                req.isOrdered = false;
             }
+            if (order.orderStatus === 'Delivered') {
+                console.log('order đã được giao hàng');
+                var products = order.orderItems.map((item) => item.product.toString());
+                req.products = products
+                req.isDelivered = true
+            } else {
+                console.log('Order chưa giao hàng');
+                req.isDelivered = false
+            }
+            next();
 
         } catch (error) {
-            res.status(500).json({ error: error })
+            return res.status(500).json({ error: error })
         }
     },
 

@@ -6,7 +6,7 @@ const router = express.Router();
 // * GET ALL CART
 router.get('/carts', cartController.getAllCart);
 
-
+// * GET MY CART
 router.get('/cart/my-cart', middlewareController.verifyToken, cartController.getMyCart);
 
 // * GET A CART

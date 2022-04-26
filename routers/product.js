@@ -46,6 +46,6 @@ router.patch('/admin/product/restore/:id', middlewareController.verifyTokenAndAd
 // * SOFT DELETE PRODUCT
 router.delete('/admin/product/:id', middlewareController.verifyTokenAndAdminAuth, productController.destroyProduct);
 
-// * DELETE PRODUCT
+// ! DELETE PRODUCT ---- delete image
 router.delete('/admin/product/force/:id', middlewareController.verifyTokenAndAdminAuth, productController.forceDestroyProduct);
 export default router;

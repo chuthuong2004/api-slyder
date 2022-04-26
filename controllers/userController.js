@@ -18,7 +18,7 @@ const userController = {
     // * GET A USER
     getUser: async(req, res) => {
         try {
-            const user = await UserModel.findById(req.params.id).populate('blogs').populate('reviews').populate('cart');
+            const user = await UserModel.findById(req.params.id).populate('blogs').populate('reviews').populate('cart').populate('orders');
             if (!user) {
                 res.status(404).json({
                     success: false,
@@ -36,7 +36,7 @@ const userController = {
 
     // * GET USER DETAILS
     getUserDetails: async(req, res) => {
-        const user = await UserModel.findById(req.user.id);
+        const user = await UserModel.findById(req.user.id).populate('blogs').populate('reviews').populate('cart').populate('orders');
         res.status(200).json({
             success: true,
             user,

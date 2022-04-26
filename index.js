@@ -45,7 +45,6 @@ app.use('/api/v1', blog);
 app.use('/api/v1', cart);
 app.use('/api/v1', order);
 app.use('/api/v1', review);
-
 mongoose.connect(URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log('Kết nối với database thành công!');

@@ -41,6 +41,7 @@ router.post('/admin/category/new', middlewareController.verifyTokenAndAdminAuth,
 // * UPDATE CATEGORY --- ADMIN
 router.put('/admin/category/:id', middlewareController.verifyTokenAndAdminAuth, upload.single('imageCate'), categoryController.updateCategory);
 
-// * DELETE CATEGORY --- ADMIN
+// * DELETE CATEGORY --- ADMIN 
+// ! handle delete image
 router.delete('/admin/category/:id', middlewareController.verifyTokenAndAdminAuth, categoryController.deleteCategory);
 export default router;

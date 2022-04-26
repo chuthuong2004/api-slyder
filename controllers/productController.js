@@ -3,12 +3,30 @@ import { CategoryModel } from "../models/CategoryModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { ReviewModel } from "../models/ReviewModel.js";
 import { UserModel } from "../models/UserModal.js";
+import { pagination } from "../utils/pagination.js";
 const productController = {
     // ! GET ALL PRODUCT ----- PAGINATION
     getAllProduct: async(req, res) => {
         try {
-            const resultPerPage = 8;
-            const productsCount = await ProductModel.countDocuments();
+            // var page = req.query.page
+            // var limit = req.query.limit
+            // const productsCount = await ProductModel.countDocuments();
+            // var products = [];
+            // if (page && limit) {
+            //     page = parseInt(page)
+            //     limit = parseInt(limit)
+            //     var skip = (page - 1) * limit
+            //     products = await ProductModel.find().skip(skip).limit(limit)
+            // } else {
+            //     products = await ProductModel.find().populate({
+            //         path: 'category',
+            //         populate: { path: 'catalog', }
+            //     }).populate({
+            //         path: 'reviews',
+            //         populate: { path: 'user' }
+            //     });
+            // }
+            // const products = pagination(page, limit, ProductModel);
             const products = await ProductModel.find().populate({
                 path: 'category',
                 populate: { path: 'catalog', }
@@ -18,8 +36,6 @@ const productController = {
             });
             res.status(200).json({
                 success: true,
-                productsCount,
-                resultPerPage,
                 products
             });
         } catch (error) {
@@ -56,7 +72,7 @@ const productController = {
         }
     },
 
-    // ! CREATE PRODCUCT --- HANDLE IMAGES
+    // ! CREATE PRODCUCT --- HANDLE IMAGES ----handle add many size, color and amount
     createProduct: async(req, res) => {
 
         try {

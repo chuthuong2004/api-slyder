@@ -3,25 +3,25 @@ import middlewareController from '../controllers/middlewareController.js';
 import reviewController from '../controllers/reviewController.js';
 const router = express.Router();
 
-// ! GET ALL REVIEWS
-router.get('/reviews', reviewController.getAllReview); // lấy tất cả sản phẩm
+// * GET ALL REVIEWS
+router.get('/reviews', reviewController.getAllReview); // 
 
-// ! GET REVIEW
-router.get('/review/:id', reviewController.getAReview); // lấy sản phẩm dựa trên :slug (name của producdt)
+// * GET REVIEW
+router.get('/review/:id', reviewController.getAReview); // 
 
-// ! CREATE REVIEW ---  midleware để đã giao hàng mới được thêm nhận xét
-router.post('/review/new', middlewareController.verifyToken, middlewareController.verifyOrderDelivered, reviewController.addReview); // thêm mới 1 product
+// * CREATE REVIEW ---  midleware để đã giao hàng mới được thêm nhận xét --DONE--
+router.post('/review/new', middlewareController.verifyToken, middlewareController.verifyOrderDelivered, reviewController.addReview); // thêm mới 1 reviews
 
-// ! UPDATE REVIEW
-router.put('/review/:id', middlewareController.verifyToken, reviewController.updateReview); // update 1 product
+// * UPDATE REVIEW
+router.put('/review/:id', middlewareController.verifyToken, reviewController.updateReview); // update 1 review
 
-// ! RESTORE REVIEW
+// * RESTORE REVIEW
 router.patch('/reivew/restore/:id', middlewareController.verifyToken, reviewController.restoreReview);
 
-// ! SOFT DELETE REVIEW
+// * SOFT DELETE REVIEW
 router.delete('/review/:id', middlewareController.verifyToken, reviewController.destroyReview);
 
-// ! DELETE REVIEW
+// * DELETE REVIEW
 router.delete('/review/force/:id', middlewareController.verifyToken, reviewController.forceDestroyReview);
 
 export default router;

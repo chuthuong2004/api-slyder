@@ -87,18 +87,26 @@ const categoryController = {
         }
     },
 
-    // * UPDATE CATEGORY
+    // * UPDATE CATEGORY 
     updateCategory: async(req, res) => {
         try {
             const newCategory = req.body;
             if (req.file) {
                 newCategory.imageCate = process.env.API + 'public/categories/' + req.file.filename;
             }
-            const category = await CategoryModel.findOneAndUpdate({ _id: req.params.id }, newCategory, { new: true });
-            if (req.body.catalog) {
+            const category = await CategoryModel.findOne({ _id: req.params.id });
+            if (req.body.catalog) { // nếu có catalog
+                var currentCatalog = category.catalog;
+                // xóa category khỏi catalog cũ
+                await CategoryModel.findOneAndUpdate({ _id: currentCatalog }, { $pull: { categories: category._id } })
+
+                // và đẩy category vào catalog mới
                 const catalog = await CatalogModel.findById(req.body.catalog);
                 await catalog.updateOne({ $push: { categories: category._id } })
+                    // await catalog.updateOne({ $addToSet: { categories: category._id } })
             }
+            await category.updateOne({ _id: req.params.id }, newCategory, { new: true });
+
             res.status(200).json({
                 success: true,
                 category
@@ -108,7 +116,7 @@ const categoryController = {
         }
     },
 
-
+    // ! handle delete image
     deleteCategory: async(req, res) => {
         try {
             await CatalogModel.updateMany({

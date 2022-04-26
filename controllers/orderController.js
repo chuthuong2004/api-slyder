@@ -6,7 +6,6 @@ import { UserModel } from "../models/UserModal.js";
 import { sendEmail } from "../utils/sendMail.js";
 
 const orderController = {
-
     // * CREATE ORDER WITH USER CART
     newOrder: async(req, res) => {
         try {
