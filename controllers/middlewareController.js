@@ -104,12 +104,12 @@ const middlewareController = {
         check('newPassword')
         .isLength({ min: 6 })
         .withMessage('New Password must be at least 6 characters long'),
-        check('comfirmPassword')
+        check('confirmPassword')
         .notEmpty()
-        .withMessage('Comfirm password is required'),
-        check('comfirmPassword')
+        .withMessage('Confirm password is required'),
+        check('confirmPassword')
         .isLength({ min: 6 })
-        .withMessage('Comfirm Password must be at least 6 characters long')
+        .withMessage('Confirm Password must be at least 6 characters long')
     ],
     validateUpdateCart: [
         check('quantity')
