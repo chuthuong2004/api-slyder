@@ -164,7 +164,7 @@ const userController = {
             const newUser = await UserModel.findByIdAndUpdate(req.user.id, { password: hasded }, { new: true });
             return res.status(200).json({
                 success: true,
-                message: 'Password changed successfully'
+                message: 'Mật khẩu của bạn đã được đổi thành công !'
             });
         } catch (error) {
             res.status(500).json({ error: error });
