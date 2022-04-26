@@ -83,7 +83,7 @@ const userController = {
 
         res.status(200).json({
             success: true,
-            message: "Update user successfully",
+            message: "Cập nhật user thành công !",
         });
     },
     // * DELETE USER ---- ADMIN
@@ -100,7 +100,7 @@ const userController = {
             } else {
                 res.status(200).json({
                     success: true,
-                    message: "Deleted user successfully",
+                    message: "Đã xóa user thành công !",
                 });
             }
         } catch (error) {
@@ -167,9 +167,8 @@ const userController = {
                 });
             }
             const hasded = await bcrypt.hash(newPassword, salt);
-            const newUser = await UserModel.findByIdAndUpdate(
-                req.user.id, { password: hasded }, { new: true }
-            );
+            user.password = hasded;
+            await user.save();
             return res.status(200).json({
                 success: true,
                 message: "Mật khẩu của bạn đã được đổi thành công !",

@@ -2,33 +2,31 @@ import { CatalogModel } from "../models/CatalogModel.js";
 import { CategoryModel } from "../models/CategoryModel.js";
 
 const catalogController = {
-
     // ! GET ALL CATALOG --- PAGINATION
     getAllCatalog: async(req, res) => {
         try {
             const resultPerPage = 8;
             const catalogsCount = await CatalogModel.countDocuments();
             const catalogs = await CatalogModel.find().populate({
-                path: 'categories',
+                path: "categories",
                 populate: {
-                    path: 'products',
+                    path: "products",
                     populate: {
-                        path: 'reviews',
-                        populate: { path: 'user' }
-                    }
-                }
+                        path: "reviews",
+                        populate: { path: "user" },
+                    },
+                },
             });
             res.status(200).json({
                 success: true,
                 catalogsCount,
                 resultPerPage,
-                catalogs
+                catalogs,
             });
         } catch (error) {
             res.status(500).json({ error: error });
         }
     },
-
 
     // * GET ALL CATALOGS --- ADMIN
     getAdminCatalogs: async(req, res) => {
@@ -36,10 +34,10 @@ const catalogController = {
             const catalogs = await CatalogModel.find();
             res.status(200).json({
                 success: true,
-                catalogs
-            })
+                catalogs,
+            });
         } catch (error) {
-            res.status(500).json({ error: error })
+            res.status(500).json({ error: error });
         }
     },
 
@@ -47,15 +45,15 @@ const catalogController = {
     getCatalog: async(req, res) => {
         try {
             const catalog = await CatalogModel.findById(req.params.id).populate({
-                path: 'categories',
+                path: "categories",
                 populate: {
-                    path: 'products',
-                    populate: { path: 'reviews', populate: { path: 'user' } }
-                }
+                    path: "products",
+                    populate: { path: "reviews", populate: { path: "user" } },
+                },
             });
             res.status(200).json({
                 success: true,
-                catalog
+                catalog,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -70,7 +68,7 @@ const catalogController = {
             await catalog.save();
             return res.status(200).json({
                 success: true,
-                catalog
+                catalog,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -81,10 +79,12 @@ const catalogController = {
     updateCatalog: async(req, res) => {
         try {
             const updateCatalog = req.body;
-            const catalog = await CatalogModel.findOneAndUpdate({ _id: req.params.id }, updateCatalog, { new: true });
+            const catalog = await CatalogModel.findOneAndUpdate({ _id: req.params.id },
+                updateCatalog, { new: true }
+            );
             res.status(200).json({
                 success: true,
-                catalog
+                catalog,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -96,10 +96,13 @@ const catalogController = {
         try {
             await CategoryModel.updateOne({ catalog: req.params.id }, { catalog: null });
             await CatalogModel.findByIdAndDelete(req.params.id);
-            res.status(200).json({ message: 'Deleted catalog successfully' })
+            res.status(200).json({
+                success: true,
+                message: "Đã xóa mục lục thành công !",
+            });
         } catch (err) {
             res.status(500).json({ error: error });
         }
-    }
-}
+    },
+};
 export default catalogController;

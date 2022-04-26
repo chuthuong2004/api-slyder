@@ -1,17 +1,8 @@
-import jwt from 'jsonwebtoken';
-import { check, validationResult } from 'express-validator';
-import { OrderModel } from '../models/OrderModel.js';
-import { ProductModel } from '../models/ProductModel.js';
-import { CartModel } from '../models/CartModel.js';
-
-function validateEmail(email) {
-    let regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (email.match(regexEmail)) {
-        return true;
-    } else {
-        return false;
-    }
-}
+import jwt from "jsonwebtoken";
+import { check, validationResult } from "express-validator";
+import { OrderModel } from "../models/OrderModel.js";
+import { ProductModel } from "../models/ProductModel.js";
+import { CartModel } from "../models/CartModel.js";
 
 const middlewareController = {
     // verifyToken
@@ -19,16 +10,22 @@ const middlewareController = {
         const token = req.headers.token;
         if (token) {
             // Bearer ẻgfwherfwerfwf
-            const accessToken = token.split(' ')[1];
+            const accessToken = token.split(" ")[1];
             jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
                 if (err) {
-                    return res.status(403).json({ message: 'Token này đã hết hạn' })
+                    return res.status(403).json({
+                        success: false,
+                        message: "Token này đã hết hạn !",
+                    });
                 }
                 req.user = user;
                 next();
-            })
+            });
         } else {
-            return res.status(401).json({ message: 'Vui lòng đăng nhập !' });
+            return res.status(401).json({
+                success: false,
+                message: "Vui lòng đăng nhập !",
+            });
         }
     },
     verifyTokenAndAdminAuth: (req, res, next) => {
@@ -36,130 +33,96 @@ const middlewareController = {
             if (req.user.isAdmin) {
                 next();
             } else {
-                return res.status(403).json({ message: 'Bạn không có quyền Admin' });
+                return res.status(403).json({
+                    success: false,
+                    message: "Bạn không có quyền Admin",
+                });
             }
         });
     },
-    // validateEmail: (req, res, next) => {
-    //     const { email, username, password } = req.body;
-    //     if (validateEmail(email) && username.length >= 6 && password.length >= 6) {
-    //         next();
-    //     } else {
-    //         res.status(403).json({ error: true, message: 'Vui lòng nhập thông tin hợp lệ' })
-    //     }   
-
-    // },
     validateSignupRequest: [
-        check('email')
-        .notEmpty()
-        .withMessage('Email is required'),
-        check('email')
-        .isEmail()
-        .withMessage('Valid Email is required'),
-        check('username')
-        .notEmpty()
-        .withMessage('Username is required'),
-        check('username')
+        check("email").notEmpty().withMessage("Vui lòng nhập địa chỉ email !"),
+        check("email").isEmail().withMessage("Địa chỉ email không hợp lệ !"),
+        check("username").notEmpty().withMessage("Vui lòng nhập tên đăng nhập !"),
+        check("username")
         .isLength({ min: 6 })
-        .withMessage('Username must be at least 6 characters'),
-        check('password')
-        .notEmpty()
-        .withMessage('Password is required'),
-        check('password')
+        .withMessage("Tên đăng nhập phải có ít nhất 6 kí tự !"),
+        check("password").notEmpty().withMessage("Vui lòng nhập mật khẩu !"),
+        check("password")
         .isLength({ min: 6 })
-        .withMessage('Password must be at least 6 characters')
+        .withMessage("Mật khẩu phải ít nhất 6 kí tự !"),
     ],
     validateSigninRequest: [
-        check('username')
-        .notEmpty()
-        .withMessage('Username is required'),
-        check('password')
-        .notEmpty()
-        .withMessage('Password is required'),
-        check('password')
+        check("username").notEmpty().withMessage("Vui lòng nhập tên đăng nhập !"),
+        check("password").notEmpty().withMessage("Vui lòng nhập mật khẩu !"),
+        check("password")
         .isLength({ min: 6 })
-        .withMessage('Password must be at least 6 characters')
+        .withMessage("Mật khẩu phải ít nhất 6 kí tự !"),
     ],
     validateCatalogRequest: [
-        check('name')
-        .notEmpty()
-        .withMessage('Name is required'),
+        check("name").notEmpty().withMessage("Vui lòng nhập tên mục lục !"),
     ],
     validateEmail: [
-        check('email')
-        .notEmpty()
-        .withMessage('Email is required'),
-        check('email')
-        .isEmail()
-        .withMessage('Valid email is required'),
-
+        check("email").notEmpty().withMessage("Vui lòng nhập địa chỉ email !"),
+        check("email").isEmail().withMessage("Địa chỉ email không hợp lệ !"),
     ],
     validateChangePassword: [
-        check('currentPassword')
+        check("currentPassword")
         .notEmpty()
-        .withMessage('Current password is required'),
-        check('newPassword')
-        .notEmpty()
-        .withMessage('New password is required'),
-        check('newPassword')
+        .withMessage("Vui lòng nhập mật khẩu hiện tại !"),
+        check("newPassword").notEmpty().withMessage("Vui lòng nhập mật khẩu mới !"),
+        check("newPassword")
         .isLength({ min: 6 })
-        .withMessage('New Password must be at least 6 characters long'),
-        check('confirmPassword')
+        .withMessage("Mật khẩu mới phải có ít nhất 6 kí tự !"),
+        check("confirmPassword")
         .notEmpty()
-        .withMessage('Confirm password is required'),
-        check('confirmPassword')
+        .withMessage("Vui lòng nhập lại mật khẩu !"),
+        check("confirmPassword")
         .isLength({ min: 6 })
-        .withMessage('Confirm Password must be at least 6 characters long')
+        .withMessage("Mật khẩu nhập lại phải có ít nhất 6 kí tự !"),
     ],
     validateUpdateCart: [
-        check('quantity')
-        .notEmpty()
-        .withMessage('quantity is required'),
+        check("quantity").notEmpty().withMessage("quantity is required"),
     ],
     validateAddToCart: [
-        check('product')
-        .notEmpty()
-        .withMessage('ID product is required'),
-        check('size')
-        .notEmpty().withMessage('Size is required'),
-        check('color').notEmpty().withMessage('Color is required'),
-        check('quantity')
-        .notEmpty()
-        .withMessage('Quantity is required'),
-        check('quantity')
-        .isNumeric({ min: 1 }).withMessage('Quantity is at least 1')
+        check("product").notEmpty().withMessage("ID product is required"),
+        check("size").notEmpty().withMessage("Size is required"),
+        check("color").notEmpty().withMessage("Color is required"),
+        check("quantity").notEmpty().withMessage("Quantity is required"),
+        check("quantity")
+        .isNumeric({ min: 1 })
+        .withMessage("Quantity is at least 1"),
     ],
     isRequestValidated: (req, res, next) => {
-        const errors = validationResult(req)
+        const errors = validationResult(req);
         if (errors.array().length > 0) {
             return res.status(400).json({
                 success: false,
-                message: errors.array()[0].msg
-            })
+                message: errors.array()[0].msg,
+            });
         } else {
             next();
         }
     },
     verifyOrderDelivered: async(req, res, next) => {
         try {
-            const order = await OrderModel.findOne({ user: req.user.id })
+            const order = await OrderModel.findOne({ user: req.user.id });
             if (!order) {
-                console.log('Không có order');
+                console.log("Không có order");
                 req.isOrdered = false;
             }
-            if (order.orderStatus === 'Delivered') {
-                console.log('order đã được giao hàng');
+            if (order.orderStatus === "Delivered") {
+                console.log("order đã được giao hàng");
                 var products = order.orderItems.map((item) => item.product.toString());
-                req.products = products
-                req.isDelivered = true
+                req.products = products;
+                req.isDelivered = true;
             } else {
-                console.log('Order chưa giao hàng');
-                req.isDelivered = false
+                console.log("Order chưa giao hàng");
+                req.isDelivered = false;
             }
             next();
-
         } catch (error) {
-            return res.status(500).json({ error: error })
+            return res.status(500).json({ error: error });
         }
     },
 
@@ -173,16 +136,21 @@ const middlewareController = {
                 if (item.size === cartItem.size) {
                     item.detailColor.forEach((item) => {
                         if (item.color.toLowerCase() === cartItem.color.toLowerCase()) {
-                            if (item.amount > 0 && item.amount >= cartItem.quantity) isSuccess = true;
+                            if (item.amount > 0 && item.amount >= cartItem.quantity)
+                                isSuccess = true;
                         }
-                    })
+                    });
                 }
-            })
-            if (!isSuccess) return res.status(400).json({ success: false, message: 'Vui lòng kiểm tra lại sản phẩm ! có thể số lượng sản phẩm không hợp lệ' })
+            });
+            if (!isSuccess)
+                return res.status(400).json({
+                    success: false,
+                    message: "Vui lòng kiểm tra lại sản phẩm ! có thể số lượng sản phẩm không hợp lệ",
+                });
             next();
         } catch (error) {
-            res.status(500).json({ error: error })
+            res.status(500).json({ error: error });
         }
-    }
-}
+    },
+};
 export default middlewareController;

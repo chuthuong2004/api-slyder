@@ -1,22 +1,21 @@
-import { BlogModel } from '../models/BlogModel.js';
-import { UserModel } from '../models/UserModal.js';
+import { BlogModel } from "../models/BlogModel.js";
+import { UserModel } from "../models/UserModal.js";
 
 const blogController = {
-
     // * GET ALL BLOGS
     getAllBlog: async(req, res) => {
         try {
             const resultPerPage = 8;
             const productsCount = await BlogModel.countDocuments();
             const blogs = await BlogModel.find().populate({
-                path: 'author',
-                populate: { path: 'reviews cart orders' },
+                path: "author",
+                populate: { path: "reviews cart orders" },
             });
             res.status(200).json({
                 success: true,
                 productsCount,
                 resultPerPage,
-                blogs
+                blogs,
             });
         } catch (err) {
             res.status(500).json({ error: err });
@@ -29,10 +28,10 @@ const blogController = {
             const blogs = await BlogModel.find();
             res.status(200).json({
                 success: true,
-                blogs
-            })
+                blogs,
+            });
         } catch (error) {
-            res.status(500).json({ error: error })
+            res.status(500).json({ error: error });
         }
     },
 
@@ -40,9 +39,9 @@ const blogController = {
     getAblog: async(req, res) => {
         try {
             const blog = await BlogModel.findById(req.params.id).populate({
-                path: 'author',
-                populate: { path: 'reviews cart orders' }
-            })
+                path: "author",
+                populate: { path: "reviews cart orders" },
+            });
             res.status(200).json({
                 success: true,
                 blog,
@@ -52,12 +51,13 @@ const blogController = {
         }
     },
 
-    // * CREATE BLOG 
+    // * CREATE BLOG
     createBlog: async(req, res) => {
         try {
             const newBlog = req.body;
             if (req.file) {
-                newBlog.attachment = process.env.API + 'public/blogs/' + req.file.filename;
+                newBlog.attachment =
+                    process.env.API + "public/blogs/" + req.file.filename;
             }
             newBlog.author = req.user.id;
             const blog = await new BlogModel(newBlog);
@@ -69,7 +69,7 @@ const blogController = {
 
             res.status(200).json({
                 success: true,
-                blog
+                blog,
             });
         } catch (err) {
             res.status(500).json({ error: err });
@@ -81,7 +81,8 @@ const blogController = {
         try {
             const newBlog = req.body;
             if (req.file) {
-                newBlog.attachment = process.env.API + 'public/blogs/' + req.file.filename;
+                newBlog.attachment =
+                    process.env.API + "public/blogs/" + req.file.filename;
             }
             const blog = await BlogModel.findOneAndUpdate({ _id: req.params.id },
                 newBlog, { new: true }
@@ -89,7 +90,7 @@ const blogController = {
 
             res.status(200).json({
                 success: true,
-                blog
+                blog,
             });
         } catch (err) {
             res.status(500).json({ error: err });
@@ -103,13 +104,13 @@ const blogController = {
             if (!destroyBlog) {
                 res.status(404).json({
                     success: false,
-                    message: 'Không tìm thấy blog để xử lý xóa mềm'
-                })
+                    message: "Không tìm thấy blog để xử lý xóa mềm",
+                });
             } else {
                 res.status(200).json({
                     success: true,
-                    message: 'Xóa mềm thành công !'
-                })
+                    message: "Xóa mềm thành công !",
+                });
             }
         } catch (error) {
             res.status(500).json({ error: error });
@@ -120,21 +121,21 @@ const blogController = {
     forceDestroyBlog: async(req, res, next) => {
         try {
             await UserModel.updateMany({
-                blogs: req.params.id
+                blogs: req.params.id,
             }, {
-                $pull: { blogs: req.params.id }
-            })
-            const deleteBlog = await BlogModel.deleteOne({ _id: req.params.id })
+                $pull: { blogs: req.params.id },
+            });
+            const deleteBlog = await BlogModel.deleteOne({ _id: req.params.id });
             if (!deleteBlog) {
                 res.status(404).json({
                     success: false,
-                    message: 'Không tìm thấy blog để xử lý xóa hẳn'
-                })
+                    message: "Không tìm thấy blog để xử lý xóa hẳn !",
+                });
             } else {
                 res.status(200).json({
                     success: true,
-                    message: 'Deleted successfully'
-                })
+                    message: "Đã xóa blog thành công !",
+                });
             }
         } catch (error) {
             res.status(500).json({ error: error });
@@ -144,24 +145,22 @@ const blogController = {
     // * RESTORE BLOG
     restoreBlog: async(req, res, next) => {
         try {
-            const restoreBlog = await BlogModel.restore({ _id: req.params.id })
+            const restoreBlog = await BlogModel.restore({ _id: req.params.id });
             if (!restoreBlog) {
                 res.status(404).json({
                     success: false,
-                    message: 'Không tìm thấy blog để khôi phục'
-                })
+                    message: "Không tìm thấy blog để khôi phục",
+                });
             } else {
                 res.status(200).json({
                     success: true,
-                    message: 'Khôi phục blog thành công'
-                })
+                    message: "Khôi phục blog thành công",
+                });
             }
         } catch (error) {
             res.status(500).json({ error: error });
         }
-    }
-
-
-}
+    },
+};
 
 export default blogController;
