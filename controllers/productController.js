@@ -3,7 +3,6 @@ import { CategoryModel } from "../models/CategoryModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { ReviewModel } from "../models/ReviewModel.js";
 import { UserModel } from "../models/UserModal.js";
-import moment from "moment";
 const productController = {
     // ! GET ALL PRODUCT ----- PAGINATION
     getAllProduct: async(req, res) => {
@@ -30,13 +29,11 @@ const productController = {
                     populate: { path: "user" },
                 });
             const productsCount = await ProductModel.countDocuments();
-            const date = moment().format("yyyyMMDDhhmmss");
             res.status(200).json({
                 success: true,
                 countDocument: productsCount,
                 resultPerPage: limit,
                 products,
-                date,
             });
         } catch (error) {
             res.status(500).json({ error: error });
