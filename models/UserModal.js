@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
         minlength: 6,
         maxlength: 25,
         lowercase: true,
-        unique: true
+        unique: true,
     },
     email: {
         type: String,
@@ -15,35 +15,38 @@ const userSchema = new mongoose.Schema({
         minlength: 10,
         maxlength: 50,
         lowercase: true,
-        unique: true
+        unique: true,
     },
     password: {
         type: String,
         required: true,
         minlength: 6,
-        select: false
+        select: false,
     },
     isAdmin: {
         type: Boolean,
-        default: false
+        default: false,
+    },
+    avatar: {
+        type: String,
+        default: "https://w7.pngwing.com/pngs/223/244/png-transparent-computer-icons-avatar-user-profile-avatar-heroes-rectangle-black-thumbnail.png",
     },
     cart: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Cart'
+        ref: "Cart",
     },
     reviews: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Review'
+        ref: "Review",
     }, ],
     blogs: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Blog'
-    }],
+        ref: "Blog",
+    }, ],
     orders: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Order'
-    }]
-
+        ref: "Order",
+    }, ],
 }, { timestamps: true });
 
-export const UserModel = mongoose.model('User', userSchema);
+export const UserModel = mongoose.model("User", userSchema);

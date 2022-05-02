@@ -5,14 +5,62 @@ import { UserModel } from "../models/UserModal.js";
 const reviewController = {
     getAllReview: async(req, res) => {
         try {
-            const reviews = await ReviewModel.find()
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+
+            const reviews = await ReviewModel.find({ enable: true })
+                .skip(skip)
+                .limit(limit)
                 .populate({
                     path: "user",
                     populate: { path: "blogs" },
                 })
                 .populate("product");
+            const countDocument = await ReviewModel.countDocuments();
             res.status(200).json({
                 success: true,
+                countDocument: countDocument,
+                resultPerPage: limit,
+                reviews,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+    getAdminReviews: async(req, res) => {
+        try {
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+
+            const reviews = await ReviewModel.find()
+                .skip(skip)
+                .limit(limit)
+                .populate({
+                    path: "user",
+                    populate: { path: "blogs" },
+                })
+                .populate("product");
+            const countDocument = await ReviewModel.countDocuments();
+            res.status(200).json({
+                success: true,
+                countDocument: countDocument,
+                resultPerPage: limit,
                 reviews,
             });
         } catch (error) {

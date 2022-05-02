@@ -5,22 +5,34 @@ const catalogController = {
     // ! GET ALL CATALOG --- PAGINATION
     getAllCatalog: async(req, res) => {
         try {
-            const resultPerPage = 8;
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
             const catalogsCount = await CatalogModel.countDocuments();
-            const catalogs = await CatalogModel.find().populate({
-                path: "categories",
-                populate: {
-                    path: "products",
+            const catalogs = await CatalogModel.find()
+                .skip(skip)
+                .limit(limit)
+                .populate({
+                    path: "categories",
                     populate: {
-                        path: "reviews",
-                        populate: { path: "user" },
+                        path: "products",
+                        populate: {
+                            path: "reviews",
+                            populate: { path: "user" },
+                        },
                     },
-                },
-            });
+                });
             res.status(200).json({
                 success: true,
                 catalogsCount,
-                resultPerPage,
+                resultPerPage: limit,
                 catalogs,
             });
         } catch (error) {
@@ -31,9 +43,34 @@ const catalogController = {
     // * GET ALL CATALOGS --- ADMIN
     getAdminCatalogs: async(req, res) => {
         try {
-            const catalogs = await CatalogModel.find();
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+            const catalogs = await CatalogModel.find()
+                .skip(skip)
+                .limit(limit)
+                .populate({
+                    path: "categories",
+                    populate: {
+                        path: "products",
+                        populate: {
+                            path: "reviews",
+                            populate: { path: "user" },
+                        },
+                    },
+                });
+            const countDocument = await CatalogModel.countDocuments();
             res.status(200).json({
                 success: true,
+                countDocument,
+                resultPerPage: limit,
                 catalogs,
             });
         } catch (error) {
@@ -94,7 +131,7 @@ const catalogController = {
     // * DELETE CATALOG
     deleteCatalog: async(req, res) => {
         try {
-            await CategoryModel.updateOne({ catalog: req.params.id }, { catalog: null });
+            await CategoryModel.updateMany({ catalog: req.params.id }, { catalog: null });
             await CatalogModel.findByIdAndDelete(req.params.id);
             res.status(200).json({
                 success: true,

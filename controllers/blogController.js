@@ -5,16 +5,28 @@ const blogController = {
     // * GET ALL BLOGS
     getAllBlog: async(req, res) => {
         try {
-            const resultPerPage = 8;
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
             const productsCount = await BlogModel.countDocuments();
-            const blogs = await BlogModel.find().populate({
-                path: "author",
-                populate: { path: "reviews cart orders" },
-            });
+            const blogs = await BlogModel.find()
+                .skip(skip)
+                .limit(limit)
+                .populate({
+                    path: "author",
+                    populate: { path: "reviews cart orders" },
+                });
             res.status(200).json({
                 success: true,
                 productsCount,
-                resultPerPage,
+                resultPerPage: limit,
                 blogs,
             });
         } catch (err) {
@@ -25,13 +37,32 @@ const blogController = {
     // * GET ALL BLOGS --- ADMIN
     getAdminBlog: async(req, res) => {
         try {
-            const blogs = await BlogModel.find();
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+            const productsCount = await BlogModel.countDocuments();
+            const blogs = await BlogModel.find()
+                .skip(skip)
+                .limit(limit)
+                .populate({
+                    path: "author",
+                    populate: { path: "reviews cart orders" },
+                });
             res.status(200).json({
                 success: true,
+                productsCount,
+                resultPerPage: limit,
                 blogs,
             });
-        } catch (error) {
-            res.status(500).json({ error: error });
+        } catch (err) {
+            res.status(500).json({ error: err });
         }
     },
 

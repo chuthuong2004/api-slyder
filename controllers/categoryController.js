@@ -2,12 +2,23 @@ import { CatalogModel } from "../models/CatalogModel.js";
 import { CategoryModel } from "../models/CategoryModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 const categoryController = {
-    // ! GET ALL CATEGORIES --- PAGINATION
+    // * GET ALL CATEGORIES --- PAGINATION
     getAllCategory: async(req, res) => {
         try {
-            const resultPerPage = 8;
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
             const categoriesCount = await CategoryModel.countDocuments();
             const categories = await CategoryModel.find()
+                .skip(skip)
+                .limit(limit)
                 .populate({
                     path: "catalog",
                 })
@@ -17,8 +28,8 @@ const categoryController = {
                 });
             res.status(200).json({
                 success: true,
-                categoriesCount,
-                resultPerPage,
+                countDocument: categoriesCount,
+                resultPerPage: limit,
                 categories,
             });
         } catch (error) {
@@ -54,9 +65,31 @@ const categoryController = {
     // * GET ALL CATEGORIES --- ADMIN
     getAdminCategories: async(req, res) => {
         try {
-            const categories = await CategoryModel.find();
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+            const categoriesCount = await CategoryModel.countDocuments();
+            const categories = await CategoryModel.find()
+                .skip(skip)
+                .limit(limit)
+                .populate({
+                    path: "catalog",
+                })
+                .populate({
+                    path: "products",
+                    populate: { path: "reviews" },
+                });
             res.status(200).json({
                 success: true,
+                countDocument: categoriesCount,
+                resultPerPage: limit,
                 categories,
             });
         } catch (error) {

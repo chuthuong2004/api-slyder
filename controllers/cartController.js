@@ -6,7 +6,19 @@ const cartController = {
     // * GET ALL CART
     getAllCart: async(req, res) => {
         try {
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
             const carts = await CartModel.find()
+                .skip(skip)
+                .limit(limit)
                 .populate({
                     path: "user",
                     select: "_id username email isAdmin ",
@@ -15,8 +27,11 @@ const cartController = {
                     path: "cartItems",
                     populate: { path: "product" }, // select: '_id name price discount'
                 });
+            const countDocument = await CartModel.countDocuments();
             res.status(200).json({
                 success: true,
+                countDocument,
+                resultPerPage: limit,
                 carts,
             });
         } catch (err) {
@@ -54,9 +69,24 @@ const cartController = {
                     path: "cartItems",
                     populate: {
                         path: "product",
-                        select: "_id name price discount images",
+                        select: "_id name price discount images detail",
                     },
                 });
+            // cart.cartItems.forEach((cartItem) => {
+            //     var detailColor = cartItem.product.detail.find(
+            //         (detailC) => detailC.size === cartItem.size
+            //     );
+            //     console.log(detailColor);
+            //     // var quantityProduct = detailColor.find(
+            //     //     (item) => item.color === cartItem.color
+            //     // );
+            //     // if (cartItem.quantity > quantityProduct.quantity) {
+            //     //     console.log(
+            //     //         "Đã lớn hơn: " + cartItem._id,
+            //     //         cartItem.quantity > quantityProduct.quantity
+            //     //     );
+            //     // }
+            // });
             res.status(200).json({ success: true, cart });
         } catch (err) {
             res.status(500).json({ error: err });
@@ -135,37 +165,66 @@ const cartController = {
     // * UPDATE CART
     updateCart: async(req, res) => {
         try {
+            const quantityUpdate = req.body.quantity;
+            if (quantityUpdate < 0) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Số lượng cập nhật phải lớn hơn 0 !",
+                });
+            }
             const cart = await CartModel.findOne({ user: req.user.id });
             if (cart) {
                 // nếu cart tồn tại thì update số lượng product trong cart
                 const cartItemId = req.params.id;
                 const cartItem = cart.cartItems.find((c) => (c._id = cartItemId));
                 if (cartItem) {
-                    if (req.body.quantity) {
-                        // return res.status(200).json(cartItem);
-                        var condition = {
+                    let condition, update;
+                    if (quantityUpdate == 0) {
+                        // xử lý xóa item khỏi cart
+                        if (cart.cartItems.length == 1) {
+                            await UserModel.updateOne({ cart: cart._id }, { cart: null });
+                            await cart.remove();
+                            return res.status(200).json({
+                                success: true,
+                                message: "Đã xóa giỏ hàng thành công !",
+                            });
+                        }
+                        condition = {
                             user: req.user.id,
                             "cartItems._id": cartItem._id,
                         };
-                        var update = {
+                        update = {
+                            $pull: { cartItems: { _id: cartItem._id } },
+                        };
+                    } else {
+                        condition = {
+                            user: req.user.id,
+                            "cartItems._id": cartItem._id,
+                        };
+                        update = {
                             $set: {
-                                "cartItems.$.quantity": req.body.quantity,
+                                "cartItems.$.quantity": quantityUpdate,
                             },
                         };
-                        CartModel.findOneAndUpdate(condition, update, { new: true }).exec(
-                            (error, _cart) => {
-                                if (error) return res.status(400).json({ error: error });
-                                if (_cart) {
-                                    return res.status(200).json({
-                                        success: true,
-                                        message: "Cập nhật giỏ hàng thành công !",
-                                        cart: _cart,
-                                    });
-                                }
-                            }
-                        );
                     }
+                    CartModel.findOneAndUpdate(condition, update, { new: true }).exec(
+                        (error, _cart) => {
+                            if (error) return res.status(400).json({ error: error });
+                            if (_cart) {
+                                return res.status(200).json({
+                                    success: true,
+                                    message: "Cập nhật giỏ hàng thành công !",
+                                    cart: _cart,
+                                });
+                            }
+                        }
+                    );
                 }
+            } else {
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy cart !",
+                });
             }
         } catch (err) {
             res.status(500).json({ error: err });

@@ -122,142 +122,190 @@ const orderController = {
 
     // * GET SINGLE ORDER
     getSingleOrder: async(req, res) => {
-        const order = await OrderModel.findById(req.params.id).populate(
-            "user",
-            "username email"
-        );
-        if (!order)
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy đơn đặt hàng với ID này !",
+        try {
+            const order = await OrderModel.findById(req.params.id).populate(
+                "user",
+                "username email"
+            );
+            if (!order)
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy đơn đặt hàng với ID này !",
+                });
+            res.status(200).json({
+                success: true,
+                order,
             });
-        res.status(200).json({
-            success: true,
-            order,
-        });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
     },
 
     // * GET MY ORDER
     myOrder: async(req, res) => {
-        const orders = await OrderModel.find({ user: req.user.id });
-
-        // tổng tiền tất cả đơn hàng
-        const totalAmount = orders.reduce(
-            (total, order) => total + order.totalPrice,
-            0
-        );
-        res.status(200).json({
-            success: true,
-            totalAmount,
-            orders,
-        });
+        try {
+            const orders = await OrderModel.find({ user: req.user.id });
+            if (!orders)
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy đơn đặt hàng !",
+                });
+            // tổng tiền tất cả đơn hàng
+            const totalAmount = orders.reduce(
+                (total, order) => total + order.totalPrice,
+                0
+            );
+            res.status(200).json({
+                success: true,
+                totalAmount,
+                orders,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
     },
 
     // * GET ALL ORDERS
     getAllOrders: async(req, res) => {
-        const orders = await OrderModel.find();
-        // tổng tiền tất cả đơn hàng
-        const totalAmount = orders.reduce(
-            (total, order) => total + (order.totalPrice + order.shippingPrice),
-            0
-        );
-        res.status(200).json({
-            success: true,
-            totalAmount,
-            orders,
-        });
+        try {
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+            const orders = await OrderModel.find()
+                .skip(skip)
+                .limit(limit)
+                .populate({
+                    path: "orderItems",
+                    populate: { path: "product" },
+                })
+                .populate("user");
+            // tổng tiền tất cả đơn hàng
+            const totalAmount = orders.reduce(
+                (total, order) => total + (order.totalPrice + order.shippingPrice),
+                0
+            );
+            const countDocument = await OrderModel.countDocuments();
+            res.status(200).json({
+                success: true,
+                totalAmount,
+                countDocument,
+                resultPerPage: limit,
+                orders,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
     },
 
     // ! UPDATE ORDER - UPDATE AMOUNT PRODUCT ---- handle send email
     updateOrder: async(req, res) => {
-        const order = await OrderModel.findById(req.params.id).populate(
-            "user",
-            "username email"
-        );
-        if (!order)
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy đơn đặt hàng với ID trên",
+        try {
+            const order = await OrderModel.findById(req.params.id).populate(
+                "user",
+                "username email"
+            );
+            if (!order)
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy đơn đặt hàng với ID trên",
+                });
+            if (order.orderStatus === "Delivered")
+                return res.status(400).json({
+                    success: false,
+                    message: "Bạn đã giao đơn đặt hàng này",
+                });
+            if (req.body.orderStatus === "Shipping") {
+                order.orderItems.forEach(async(order) => {
+                    await updateAmount(
+                        order.product,
+                        order.size,
+                        order.color,
+                        order.quantity
+                    );
+                });
+                sendEmail({
+                    email: order.user.email,
+                    subject: "ĐƠN HÀNG CỦA BẠN ĐANG VẬN CHUYỂN",
+                    message: "đơn hàng của bạn đang vận chuyển",
+                });
+            }
+            if (req.body.orderStatus === "Delivery") {
+                sendEmail({
+                    email: order.user.email,
+                    subject: "ĐƠN HÀNG CỦA BẠN ĐANG GIAO",
+                    message: "đơn hàng của bạn đang giao",
+                });
+            }
+            order.orderStatus = req.body.orderStatus;
+            if (req.body.orderStatus === "Delivered") {
+                order.deliveredAt = Date.now();
+                sendEmail({
+                    email: order.user.email,
+                    subject: "ĐƠN HÀNG CỦA BẠN ĐÃ GIAO",
+                    message: "đơn hàng của bạn đã được giao thành công",
+                });
+            }
+            await order.save({ validateBeforeSave: false });
+            res.status(200).json({
+                success: true,
+                message: "Đã cập nhật đơn hàng thành công !",
             });
-        if (order.orderStatus === "Delivered")
-            return res.status(400).json({
-                success: false,
-                message: "Bạn đã giao đơn đặt hàng này",
-            });
-        if (req.body.orderStatus === "Shipping") {
-            order.orderItems.forEach(async(order) => {
-                await updateAmount(
-                    order.product,
-                    order.size,
-                    order.color,
-                    order.quantity
-                );
-            });
-            sendEmail({
-                email: order.user.email,
-                subject: "ĐƠN HÀNG CỦA BẠN ĐANG VẬN CHUYỂN",
-                message: "đơn hàng của bạn đang vận chuyển",
-            });
+        } catch (error) {
+            res.status(500).json({ error: error });
         }
-        if (req.body.orderStatus === "Delivery") {
-            sendEmail({
-                email: order.user.email,
-                subject: "ĐƠN HÀNG CỦA BẠN ĐANG GIAO",
-                message: "đơn hàng của bạn đang giao",
-            });
-        }
-        order.orderStatus = req.body.orderStatus;
-        if (req.body.orderStatus === "Delivered") {
-            order.deliveredAt = Date.now();
-            sendEmail({
-                email: order.user.email,
-                subject: "ĐƠN HÀNG CỦA BẠN ĐÃ GIAO",
-                message: "đơn hàng của bạn đã được giao thành công",
-            });
-        }
-        await order.save({ validateBeforeSave: false });
-        res.status(200).json({
-            success: true,
-            message: "Đã cập nhật đơn hàng thành công !",
-        });
     },
 
     // * DELETE ORDER --- DONE
     deleteOrder: async(req, res) => {
-        const order = await OrderModel.findById(req.params.id);
-        if (!order)
-            return res.status(404).json({
-                success: false,
-                message: "Không tìm thấy đơn đặt hàng với ID được chỉ định !",
+        try {
+            const order = await OrderModel.findById(req.params.id);
+            if (!order)
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy đơn đặt hàng với ID được chỉ định !",
+                });
+            await UserModel.updateMany({
+                orders: req.params.id,
+            }, {
+                $pull: { orders: req.params.id },
             });
-        await UserModel.updateMany({
-            orders: req.params.id,
-        }, {
-            $pull: { orders: req.params.id },
-        });
-        await order.remove();
+            await order.remove();
 
-        res.status(200).json({
-            success: true,
-            message: "Đã xóa đơn hàng thành công !",
-        });
+            res.status(200).json({
+                success: true,
+                message: "Đã xóa đơn hàng thành công !",
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
     },
 };
 
 // * UPDATE AMOUNT PRODUCT WITH SIZE COLOR --- DONE
 const updateAmount = async(idProduct, size, color, quantity) => {
-    console.log(idProduct, size, color, quantity);
-    const product = await ProductModel.findById(idProduct);
-    product.detail.forEach((item) => {
-        if (item.size === size) {
-            item.detailColor.forEach((itemDetailColor) => {
-                if (itemDetailColor.color.toLowerCase() === color.toLowerCase()) {
-                    itemDetailColor.amount -= quantity;
-                }
-            });
-        }
-    });
-    await product.save();
+    try {
+        console.log(idProduct, size, color, quantity);
+        const product = await ProductModel.findById(idProduct);
+        product.detail.forEach((item) => {
+            if (item.size === size) {
+                item.detailColor.forEach((itemDetailColor) => {
+                    if (itemDetailColor.color.toLowerCase() === color.toLowerCase()) {
+                        itemDetailColor.amount -= quantity;
+                    }
+                });
+            }
+        });
+        await product.save();
+    } catch (error) {
+        res.status(500).json({ error: error });
+    }
 };
 
 export default orderController;

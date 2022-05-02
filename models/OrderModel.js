@@ -51,7 +51,7 @@ const orderSchema = new mongoose.Schema({
         },
         size: {
             type: String,
-            required: true
+            required: true,
         },
         color: {
             type: String,
@@ -111,6 +111,15 @@ const orderSchema = new mongoose.Schema({
         required: true,
         default: "Processing", // shipping, delivery, delivered
     },
-    deliveredAt: Date,
+    paid: {
+        type: Boolean,
+        Default: false,
+    },
+    paidAt: {
+        type: Date,
+    },
+    deliveredAt: {
+        type: Date,
+    },
 }, { timestamps: true });
-export const OrderModel = mongoose.model('Order', orderSchema);
+export const OrderModel = mongoose.model("Order", orderSchema);

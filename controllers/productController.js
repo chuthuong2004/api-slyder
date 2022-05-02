@@ -3,31 +3,23 @@ import { CategoryModel } from "../models/CategoryModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { ReviewModel } from "../models/ReviewModel.js";
 import { UserModel } from "../models/UserModal.js";
-import { pagination } from "../utils/pagination.js";
 const productController = {
     // ! GET ALL PRODUCT ----- PAGINATION
     getAllProduct: async(req, res) => {
         try {
-            // var page = req.query.page
-            // var limit = req.query.limit
-            // const productsCount = await ProductModel.countDocuments();
-            // var products = [];
-            // if (page && limit) {
-            //     page = parseInt(page)
-            //     limit = parseInt(limit)
-            //     var skip = (page - 1) * limit
-            //     products = await ProductModel.find().skip(skip).limit(limit)
-            // } else {
-            //     products = await ProductModel.find().populate({
-            //         path: 'category',
-            //         populate: { path: 'catalog', }
-            //     }).populate({
-            //         path: 'reviews',
-            //         populate: { path: 'user' }
-            //     });
-            // }
-            // const products = pagination(page, limit, ProductModel);
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
             const products = await ProductModel.find()
+                .skip(skip)
+                .limit(limit)
                 .populate({
                     path: "category",
                     populate: { path: "catalog" },
@@ -36,8 +28,11 @@ const productController = {
                     path: "reviews",
                     populate: { path: "user" },
                 });
+            const productsCount = await ProductModel.countDocuments();
             res.status(200).json({
                 success: true,
+                countDocument: productsCount,
+                resultPerPage: limit,
                 products,
             });
         } catch (error) {
@@ -62,7 +57,10 @@ const productController = {
         try {
             const product = await ProductModel.findById(req.params.id)
                 .populate("category")
-                .populate("reviews");
+                .populate({
+                    path: "reviews",
+                    match: { enable: true },
+                });
             if (!product)
                 return res.status(404).json({
                     success: false,
@@ -77,7 +75,7 @@ const productController = {
         }
     },
 
-    // ! CREATE PRODCUCT --- HANDLE IMAGES ----handle add many size, color and amount
+    // ! CREATE PRODCUCT --- HANDLE IMAGES ---DONE--- ----handle add many size, color and amount
     createProduct: async(req, res) => {
         try {
             const { color, size, amount, ...other } = req.body;

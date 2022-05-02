@@ -9,8 +9,34 @@ const userController = {
     // * GET ALL USERS
     getAllUser: async(req, res) => {
         try {
-            const users = await UserModel.find();
-            res.status(200).json(users);
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+            const users = await UserModel.find()
+                .skip(skip)
+                .limit(limit)
+                .populate("cart")
+                .populate({
+                    path: "reviews",
+                    populate: { path: "product" },
+                })
+                .populate("blogs")
+                .populate("orders");
+
+            const userCount = await UserModel.countDocuments();
+            res.status(200).json({
+                success: true,
+                countDocument: userCount,
+                resultPerPage: limit,
+                users,
+            });
         } catch (error) {
             res.status(500).json({ error: error });
         }
