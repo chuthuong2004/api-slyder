@@ -32,7 +32,7 @@ router.put(
     catalogController.updateCatalog
 );
 
-// ! DELETE CATALOG ---delete category
+// * DELETE CATALOG
 router.delete(
     "/admin/catalog/:id",
     middlewareController.verifyTokenAndAdminAuth,

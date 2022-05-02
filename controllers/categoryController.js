@@ -162,12 +162,12 @@ const categoryController = {
     // ! handle delete image
     deleteCategory: async(req, res) => {
         try {
-            await CatalogModel.updateMany({
+            await CatalogModel.updateOne({
                 categories: req.params.id,
             }, {
                 $pull: { categories: req.params.id },
             });
-            await ProductModel.updateOne({
+            await ProductModel.updateMany({
                 category: req.params.id,
             }, { category: null });
             await CategoryModel.findByIdAndDelete(req.params.id);
