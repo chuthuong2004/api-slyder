@@ -5,6 +5,7 @@ import multer from "multer";
 import shortid from "shortid";
 import path from "path";
 import { fileURLToPath } from "url";
+import moment from "moment";
 
 const __filename = fileURLToPath(
     import.meta.url);
@@ -12,13 +13,13 @@ const __filename = fileURLToPath(
 // 👇️ "/home/john/Desktop/javascript"
 const __dirname = path.dirname(__filename);
 const router = express.Router();
-
+const date = moment().format("yyyyMMDDhhmmss");
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, path.join(path.dirname(__dirname), "uploads/products"));
     },
     filename: function(req, file, cb) {
-        cb(null, shortid.generate() + "-" + file.originalname);
+        cb(null, date + "-" + file.originalname);
     },
 });
 
