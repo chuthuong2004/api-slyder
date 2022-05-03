@@ -3,6 +3,7 @@ import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { UserModel } from "../models/UserModal.js";
 import { sendEmail } from "../utils/sendMail.js";
+import msg from "../utils/messageEmail.js";
 import moment from "moment";
 const orderController = {
     // * CREATE ORDER WITH USER CART
@@ -59,7 +60,6 @@ const orderController = {
             });
             // * Save order
             await newOrder.save();
-
             // * Tìm User
             const user = await UserModel.findById(req.user.id);
             if (!user)
@@ -69,112 +69,12 @@ const orderController = {
                 });
             // * Push order vào user
             await user.updateOne({ $push: { orders: newOrder._id } });
-            var html = "";
-            orderItems.forEach((orderItem) => {
-                html += `  
-                        <tr>
-                            <td>
-                                <img style="width:50px; height:80px; object-fit: cover;" src="${
-                                  orderItem.image
-                                }" alt="">
-                            </td>
-                            <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${
-                              orderItem.name
-                            } - ${orderItem.color} - ${orderItem.size}</td>
-                            <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${
-                              orderItem.quantity
-                            }</td>
-                            <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${(
-                              orderItem.price -
-                              orderItem.price * (orderItem.discount / 100)
-                            )
-                              .toString()
-                              .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}đ</td>
-                        </tr>
-                        `;
-            });
-            const message = `<div style="background: #00796b; display: flex;flex-direction: row;">
-                                        <div style="margin: 50px auto 0px auto;background: #fff;max-width: 500px;">
-                                        <h2 style=" text-align: center;background: #00bfa5;margin: 0;padding: 0;line-height: 70px;font-weight: 600;">
-                                        Cảm ơn bạn đã đặt hàng !
-                                        </h2>
-                                        <div style="padding: 20px 20px 0 20px;">
-                                        <p>Xin chào <b>${
-                                          newOrder.shippingInfo.fullName
-                                        }</b>,</p>
-                                        <p>Đơn hàng <b>#${
-                                          newOrder._id
-                                        }</b> đã được đặt thành công và chúng tôi đang xử lý</p>
-                                        <h4>[Đơn hàng #${
-                                          newOrder._id
-                                        }] (${moment(newOrder.createdAt).format(
-        "DD/MM/YYYY HH:mm:ss"
-      )})</h4>
-                                        <table style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">
-                                            <tr>
-                                                <th style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px; " width="20%" >Hình ảnh</th>
-                                                <th style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px; " width="50%" >Sản phẩm</th>
-                                                <th style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px; " width="10%" >Số lượng</th>
-                                                <th style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px; " width="20%" >Giá</th>
-                                            </tr>
-                                            ${html}
-                                            <tr>
-                                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="3" style="text-align:left">Tổng số phụ:
-                                                </td>
-                                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>${newOrder.totalPrice
-                                                  .toString()
-                                                  .replace(
-                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                    ","
-                                                  )}đ</b></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="3" style="text-align:left">Phí vận chuyển:
-                                                </td>
-                                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>${newOrder.shippingPrice
-                                                  .toString()
-                                                  .replace(
-                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                    ","
-                                                  )}đ</b></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="3" style="text-align:left">Phương thức thanh toán:
-                                                </td>
-                                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>Thanh toán khi nhận hàng (COD)</b></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="3" style="text-align:left">Tổng cộng:
-                                                </td>
-                                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>${(
-                                                  newOrder.totalPrice +
-                                                  newOrder.shippingPrice
-                                                )
-                                                  .toString()
-                                                  .replace(
-                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                    ","
-                                                  )}đ</b></td>
-                                            </tr>
-                                        </table>
-
-                                        <h4>Địa chỉ nhận hàng</h4>
-                                        <div style="border: 1px solid #bdbdbd; padding:10px 20px;">
-                                        <p>${
-                                          newOrder.shippingInfo.fullName
-                                        } <br>${
-        newOrder.shippingInfo.address.split(",")[0]
-      }<br>${newOrder.shippingInfo.address.split(",")[1]}<br>${
-        newOrder.shippingInfo.address.split(",")[2]
-      }<br>${newOrder.shippingInfo.address.split(",")[3]}<br>${
-        newOrder.shippingInfo.phone
-      }<br>${user.email}                </p>
-                                        </div>
-                                        <p>Thanks for using LTH Store !</p>
-                                    </div>
-                                    <p style="margin:0; padding:20px; color:#9e9e9e; text-align:center; background: #00796b;">LTH Store – chúng tôi chân thành cảm ơn bạn đã tin tưởng và ủng hộ chúng tôi</p>
-                                </div>
-                            </div>`;
+            var message = msg(
+                newOrder,
+                "Cảm ơn bạn đã đặt hàng !",
+                "đã được đặt thành công và chúng tối đang xử lý.",
+                user.email
+            );
             try {
                 await sendEmail({
                     email: user.email,
@@ -274,7 +174,7 @@ const orderController = {
         }
     },
 
-    // ! UPDATE ORDER - UPDATE AMOUNT PRODUCT ---- handle send email
+    // * UPDATE ORDER - UPDATE AMOUNT PRODUCT ---- handle send email
     updateOrder: async(req, res) => {
         try {
             const order = req.order;
@@ -291,17 +191,32 @@ const orderController = {
                     );
                 });
                 options.subject = "Đơn hàng tại LTH Store đang được vận chuyển";
-                options.message = "đơn hàng của bạn đang vận chuyển";
+                options.message = msg(
+                    order,
+                    "Đơn hàng của bạn đang được vận chuyển",
+                    "đang được vận chuyển"
+                );
             }
             if (req.body.orderStatus === "Delivery") {
                 options.subject = "Đơn hàng tại LTH Store đang giao đến bạn !";
                 options.message = "đơn hàng của bạn đang giao";
+                options.message = msg(
+                    order,
+                    "Đơn hàng của bạn đang được giao",
+                    `đang được giao đến địa chỉ <b>${order.shippingInfo.address}</b>`
+                );
             }
             order.orderStatus = req.body.orderStatus;
             if (req.body.orderStatus === "Delivered") {
                 order.deliveredAt = Date.now();
                 options.subject = "Đơn hàng tại LTH Store đã được giao thành công !";
-                options.message = "đơn hàng của bạn đã được giao thành công";
+                options.message = msg(
+                    order,
+                    "Đơn hàng của bạn đã giao thành công !",
+                    `đã được giao thành công ngày ${moment(order.deliveredAt).format(
+            "DD/MM/YYYY HH:mm:ss"
+          )}`
+                );
             }
             await order.save({ validateBeforeSave: false });
             sendEmail(options);

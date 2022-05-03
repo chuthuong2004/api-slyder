@@ -146,7 +146,7 @@ const userController = {
                 });
             }
             // create reusable transporter object using the default SMTP transport
-            let newPassword = Math.random().toString(36).substring(7);
+            let newPassword = Math.random().toString(36).substring(2);
             const salt = await bcrypt.genSalt(10);
             const hasded = await bcrypt.hash(newPassword, salt);
             user.password = hasded;
@@ -154,8 +154,9 @@ const userController = {
             try {
                 await sendEmail({
                     email: user.email,
-                    subject: "LẤY LẠI MẬT KHẨU",
-                    message: `Cửa hàng Slyder.vn xin gửi lại mật khẩu của bạn. <br>
+                    subject: "Lấy lại mật khẩu thành công !",
+                    message: `Xin chào ${user.username},<br>
+                    Cửa hàng LTH Store xin gửi lại mật khẩu của bạn. <br>
                     Mật khẩu mới: <b style="padding: 5px 7px; background: #eee; color: red"> ${newPassword} </b>`,
                 });
             } catch (error) {

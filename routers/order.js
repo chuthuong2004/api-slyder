@@ -31,7 +31,7 @@ router.get(
     orderController.getAllOrders
 );
 
-// ! UPDATE ORDER --- ADMIN ---- design send mail
+// * UPDATE ORDER --- ADMIN ---- design send mail
 router.put(
     "/admin/order/:id",
     middlewareController.verifyTokenAndAdminAuth,

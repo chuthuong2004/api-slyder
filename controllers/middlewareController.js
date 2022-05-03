@@ -3,6 +3,7 @@ import { check, validationResult } from "express-validator";
 import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { CartModel } from "../models/CartModel.js";
+import msg from "../utils/messageEmail.js";
 const middlewareController = {
     // verifyToken
     verifyToken: (req, res, next) => {
@@ -126,12 +127,6 @@ const middlewareController = {
     },
     checkStatusOrder: async(req, res, next) => {
         try {
-            // let result = messageEmail(
-            //     // order,
-            //     "Đơn hàng của bạn đang được vận chuyển",
-            //     "đang được vận chuyển"
-            // );
-            // return res.status(200).json(result);
             const order = await OrderModel.findById(req.params.id).populate(
                 "user",
                 "username email"
