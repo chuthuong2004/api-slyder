@@ -1,10 +1,9 @@
-import e from "express";
 import { CartModel } from "../models/CartModel.js";
 import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { UserModel } from "../models/UserModal.js";
 import { sendEmail } from "../utils/sendMail.js";
-
+import moment from "moment";
 const orderController = {
     // * CREATE ORDER WITH USER CART
     newOrder: async(req, res) => {
@@ -71,12 +70,27 @@ const orderController = {
             // * Push order vào user
             var html = "";
             orderItems.forEach((orderItem) => {
-                html += `
-                    <tr>
-                    <td style=" border: 1px solid black; border-radius: 10px; text-align:center;">${orderItem.name}</td>
-                    <td style=" border: 1px solid black; border-radius: 10px; text-align:center;">${orderItem.price}</td>
-                    <td style=" border: 1px solid black; border-radius: 10px; text-align:center;">${orderItem.quantity}</td>
-                    <tr>`;
+                html += `  
+                        <tr>
+                            <td>
+                                <img style="width:50px; height:80px; object-fit: cover;" src="${
+                                  orderItem.image
+                                }" alt="">
+                            </td>
+                            <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${
+                              orderItem.name
+                            } - ${orderItem.color} - ${orderItem.size}</td>
+                            <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${
+                              orderItem.quantity
+                            }</td>
+                            <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${(
+                              orderItem.price -
+                              orderItem.price * (orderItem.discount / 100)
+                            )
+                              .toString()
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}đ</td>
+                        </tr>
+                        `;
             });
             await user.updateOne({ $push: { orders: newOrder._id } });
             //         const message = `<p>Đơn hàng #${
@@ -105,80 +119,81 @@ const orderController = {
             //                 </tr>
             //                 </table>
             //                 `;
-            const message = `<div style="background: #00796b;
-            display: flex;flex-direction: row;">
-        
-                <div style="margin: 50px auto 0px auto;
-                background: #fff;
-                max-width: 500px;">
-        
-                    <h2 style=" text-align: center;
-                    background: #00bfa5;
-                    margin: 0;
-                    padding: 0;
-                    line-height: 70px;
-                    font-weight: 600;">Cảm ơn bạn đã đặt hàng !</h2>
-                    <div style="padding: 20px 20px 0 20px;">
-                        <p>Xin chào Đào Văn Thương,</p>
-                        <p>Đơn hàng #60491 đã được đặt thành công và chúng tôi đang xử lý</p>
-                        <h4>[Đơn hàng #60491] (20/04/2022)</h4>
-                        <table style="border: 1px solid #bdbdbd;
-                        border-collapse: collapse;
-                        padding: 4px 8px;">
-                            <tr>
-                                <th style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px; " width="70%" >Sản phẩm</th>
-                                <th style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px; " width="10%" >Số lượng</th>
-                                <th style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px; " width="20%" >Giá</th>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">Versace Eros adf asfg sfg sgs sg fs gfda adf ad à- (10ml - 200ml) - Chiết 10ml</td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">1</td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">280,000₫</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">Versace Eros - (10ml - 200ml) - Chiết 10ml</td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">1</td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">22.280,000₫</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">Versace Eros - (10ml - 200ml) - Chiết 10ml</td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">1</td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">280,000₫</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">Versace Eros - (10ml - 200ml) - Chiết 10ml</td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">1</td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">280,000₫</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="2" style="text-align:left">Tổng số phụ:
-                                </td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>280,000₫</b></td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="2" style="text-align:left">Phí vận chuyển:
-                                </td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>20,000₫</b></td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="2" style="text-align:left">Phương thức thanh toán:
-                                </td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>Thanh toán khi nhận hàng (COD)</b></td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="2" style="text-align:left">Tổng cộng:
-                                </td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>300,000₫</b></td>
-                            </tr>
-                        </table>
-        
-                        <h4>Địa chỉ nhận hàng</h4>
-                        <p>Đào Văn Thương <br>520/90/19 QL13 <br>Phường Hiệp Bình Phước <br>Thành phố Thủ Đức Tp. Hồ Chí Minh <br>0333729170 <br>chuthuong1080@gmail.com
-                        </p>
-                    </div>
-                    <p style="margin:0; padding:20px; color:#9e9e9e; text-align:center; background: #00796b;">LTH Store – chúng tôi chân thành cảm ơn bạn đã tin tưởng và ủng hộ chúng tôi</p>
-                </div>
-            </div>`;
+            const message = `<div style="background: #00796b; display: flex;flex-direction: row;">
+                                <div style="margin: 50px auto 0px auto;background: #fff;max-width: 500px;">
+                                <h2 style=" text-align: center;background: #00bfa5;margin: 0;padding: 0;line-height: 70px;font-weight: 600;">
+                                Cảm ơn bạn đã đặt hàng !
+                                </h2>
+                                <div style="padding: 20px 20px 0 20px;">
+                                <p>Xin chào <b>${
+                                  newOrder.shippingInfo.fullName
+                                }</b>,</p>
+                                <p>Đơn hàng <b>#${
+                                  newOrder._id
+                                }</b> đã được đặt thành công và chúng tôi đang xử lý</p>
+                                <h4>[Đơn hàng #${newOrder._id}] (${moment(
+        newOrder.createdAt
+      ).format("DD/MM/YYYY HH:mm:ss")})</h4>
+                                <table style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">
+                                    <tr>
+                                        <th style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px; " width="20%" >Hình ảnh</th>
+                                        <th style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px; " width="50%" >Sản phẩm</th>
+                                        <th style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px; " width="10%" >Số lượng</th>
+                                        <th style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px; " width="20%" >Giá</th>
+                                    </tr>
+                                    ${html}
+                                    <tr>
+                                        <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="3" style="text-align:left">Tổng số phụ:
+                                        </td>
+                                        <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>${newOrder.totalPrice
+                                          .toString()
+                                          .replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ","
+                                          )}đ</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="3" style="text-align:left">Phí vận chuyển:
+                                        </td>
+                                        <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>${newOrder.shippingPrice
+                                          .toString()
+                                          .replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ","
+                                          )}đ</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="3" style="text-align:left">Phương thức thanh toán:
+                                        </td>
+                                        <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>Thanh toán khi nhận hàng (COD)</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;" colspan="3" style="text-align:left">Tổng cộng:
+                                        </td>
+                                        <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;"><b>${(
+                                          newOrder.totalPrice +
+                                          newOrder.shippingPrice
+                                        )
+                                          .toString()
+                                          .replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ","
+                                          )}đ</b></td>
+                                    </tr>
+                                </table>
+                
+                                <h4>Địa chỉ nhận hàng</h4>
+                                <p>${newOrder.shippingInfo.fullName} <br>${
+        newOrder.shippingInfo.address.split(",")[0]
+      }<br>${newOrder.shippingInfo.address.split(",")[1]}<br>${
+        newOrder.shippingInfo.address.split(",")[2]
+      }<br>${newOrder.shippingInfo.address.split(",")[3]}<br>${
+        newOrder.shippingInfo.phone
+      }<br>${user.email}                </p>
+                            </div>
+                            <p style="margin:0; padding:20px; color:#9e9e9e; text-align:center; background: #00796b;">LTH Store – chúng tôi chân thành cảm ơn bạn đã tin tưởng và ủng hộ chúng tôi</p>
+                        </div>
+                    </div>`;
             try {
                 await sendEmail({
                     email: user.email,
