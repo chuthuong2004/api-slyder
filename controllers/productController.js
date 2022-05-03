@@ -114,7 +114,7 @@ const productController = {
             if (!product)
                 return res
                     .status(404)
-                    .json({ success: false, message: "Product not found" });
+                    .json({ success: false, message: "Không tìm thấy sản phẩm !" });
 
             const updateProduct = req.body;
             let images = [];
@@ -130,7 +130,7 @@ const productController = {
                     new: true,
                     runValidators: true,
                     useFindAndModify: false,
-                }
+                }, { new: true }
             );
             res.status(200).json({
                 success: true,
@@ -224,6 +224,59 @@ const productController = {
                     message: "Khôi phục sản phẩm thành công !",
                 });
             }
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+    search: async(req, res) => {
+        try {
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            let search = req.query.q;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+            const products = await ProductModel.find({
+                    $or: [
+                        { name: { $regex: new RegExp(".*" + search + ".*", "i") } },
+                        {
+                            keywords: {
+                                $regex: new RegExp(".*" + search + ".*", "i"),
+                            },
+                        },
+                    ],
+                })
+                .skip(skip)
+                .limit(limit)
+                .populate({
+                    path: "category",
+                    populate: { path: "catalog" },
+                })
+                .populate({
+                    path: "reviews",
+                    populate: { path: "user" },
+                });
+            const countDocument = await ProductModel.countDocuments({
+                $or: [
+                    { name: { $regex: new RegExp(".*" + search + ".*", "i") } },
+                    {
+                        keywords: {
+                            $regex: new RegExp(".*" + search + ".*", "i"),
+                        },
+                    },
+                ],
+            });
+            res.status(200).json({
+                success: true,
+                countDocument,
+                resultPerPage: limit,
+                products: products,
+            });
         } catch (error) {
             res.status(500).json({ error: error });
         }

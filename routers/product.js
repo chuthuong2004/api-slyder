@@ -75,4 +75,6 @@ router.delete(
     middlewareController.verifyTokenAndAdminAuth,
     productController.forceDestroyProduct
 );
+
+router.get("/products/search", productController.search);
 export default router;
