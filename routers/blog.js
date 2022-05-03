@@ -2,20 +2,21 @@ import express from "express";
 import blogController from "../controllers/blogController.js";
 const router = express.Router();
 import multer from "multer";
-import shortid from "shortid";
+// import shortid from "shortid";
 import path from "path";
 import { fileURLToPath } from "url";
 import middlewareController from "../controllers/middlewareController.js";
 const __filename = fileURLToPath(
     import.meta.url);
-// 👇️ "/home/john/Desktop/javascript"
 const __dirname = path.dirname(__filename);
+
+const date = moment(Date.now()).format("yyyyMMDDhhmmss");
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, path.join(path.dirname(__dirname), "uploads/blogs"));
     },
     filename: function(req, file, cb) {
-        cb(null, shortid.generate() + "-" + file.originalname);
+        cb(null, date + "-" + file.originalname);
     },
 });
 const upload = multer({ storage });

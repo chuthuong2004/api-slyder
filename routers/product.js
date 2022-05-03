@@ -2,7 +2,6 @@ import express, { Router } from "express";
 import middlewareController from "../controllers/middlewareController.js";
 import productController from "../controllers/productController.js";
 import multer from "multer";
-import shortid from "shortid";
 import path from "path";
 import { fileURLToPath } from "url";
 import moment from "moment";
@@ -13,7 +12,8 @@ const __filename = fileURLToPath(
 // 👇️ "/home/john/Desktop/javascript"
 const __dirname = path.dirname(__filename);
 const router = express.Router();
-const date = moment().format("yyyyMMDDhhmmss");
+const date = moment(Date.now()).format("yyyyMMDDhhmmss");
+console.log(date);
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, path.join(path.dirname(__dirname), "uploads/products"));

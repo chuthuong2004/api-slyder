@@ -3,7 +3,6 @@ import { check, validationResult } from "express-validator";
 import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { CartModel } from "../models/CartModel.js";
-
 const middlewareController = {
     // verifyToken
     verifyToken: (req, res, next) => {
@@ -121,6 +120,49 @@ const middlewareController = {
                 req.isDelivered = false;
             }
             next();
+        } catch (error) {
+            return res.status(500).json({ error: error });
+        }
+    },
+    checkStatusOrder: async(req, res, next) => {
+        try {
+            // let result = messageEmail(
+            //     // order,
+            //     "Đơn hàng của bạn đang được vận chuyển",
+            //     "đang được vận chuyển"
+            // );
+            // return res.status(200).json(result);
+            const order = await OrderModel.findById(req.params.id).populate(
+                "user",
+                "username email"
+            );
+            if (!order)
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy đơn đặt hàng với ID trên !",
+                });
+
+            if (order.orderStatus === "Delivered")
+                return res.status(400).json({
+                    success: false,
+                    message: "Bạn đã giao đơn đặt hàng này !",
+                });
+            if (
+                (order.orderStatus === "Processing" &&
+                    req.body.orderStatus === "Shipping") ||
+                (order.orderStatus === "Shipping" &&
+                    req.body.orderStatus === "Delivery") ||
+                (order.orderStatus === "Delivery" &&
+                    req.body.orderStatus === "Delivered")
+            ) {
+                req.order = order;
+                next();
+            } else {
+                return res.status(400).json({
+                    success: false,
+                    message: "Đơn đặt hàng cập nhật không hợp lệ !",
+                });
+            }
         } catch (error) {
             return res.status(500).json({ error: error });
         }

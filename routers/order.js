@@ -35,6 +35,7 @@ router.get(
 router.put(
     "/admin/order/:id",
     middlewareController.verifyTokenAndAdminAuth,
+    middlewareController.checkStatusOrder,
     orderController.updateOrder
 );
 
