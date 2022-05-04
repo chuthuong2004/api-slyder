@@ -28,8 +28,8 @@ const authController = {
     registerUser: async(req, res) => {
         try {
             // kiểm tra email tồn tại
-            const isExistUser = await UserModel.findOne({ email: req.body.email });
-            if (isExistUser)
+            const userExists = await UserModel.findOne({ email: req.body.email });
+            if (userExists)
                 return res
                     .status(400)
                     .json({ success: false, message: "Email đã tồn tại !" });

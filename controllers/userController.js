@@ -96,21 +96,23 @@ const userController = {
     },
     // * UPDATE USER ROLE --- ADMIN
     updateUserRole: async(req, res) => {
-        const newUserData = {
-            username: req.body.username,
-            email: req.body.email,
-            isAdmin: req.body.isAdmin,
-        };
-        await UserModel.findByIdAndUpdate(req.params.id, newUserData, {
-            new: true,
-            runValidators: true,
-            useFindAndModify: false,
-        });
+        try {
+            // update role account
+            await UserModel.findByIdAndUpdate(
+                req.params.id, { isAdmin: req.body.isAdmin }, {
+                    new: true,
+                    runValidators: true,
+                    useFindAndModify: false,
+                }
+            );
 
-        res.status(200).json({
-            success: true,
-            message: "Cập nhật user thành công !",
-        });
+            res.status(200).json({
+                success: true,
+                message: "Cập nhật user thành công !",
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
     },
     // * DELETE USER ---- ADMIN
     deleteUser: async(req, res) => {

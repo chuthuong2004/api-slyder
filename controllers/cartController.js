@@ -72,21 +72,6 @@ const cartController = {
                         select: "_id name price discount images detail",
                     },
                 });
-            // cart.cartItems.forEach((cartItem) => {
-            //     var detailColor = cartItem.product.detail.find(
-            //         (detailC) => detailC.size === cartItem.size
-            //     );
-            //     console.log(detailColor);
-            //     // var quantityProduct = detailColor.find(
-            //     //     (item) => item.color === cartItem.color
-            //     // );
-            //     // if (cartItem.quantity > quantityProduct.quantity) {
-            //     //     console.log(
-            //     //         "Đã lớn hơn: " + cartItem._id,
-            //     //         cartItem.quantity > quantityProduct.quantity
-            //     //     );
-            //     // }
-            // });
             res.status(200).json({ success: true, cart });
         } catch (err) {
             res.status(500).json({ error: err });

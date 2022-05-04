@@ -9,13 +9,10 @@ const orderController = {
     // * CREATE ORDER WITH USER CART
     newOrder: async(req, res) => {
         try {
-            const { fullName, phone, address } = req.body;
+            const { fullName, phone, city, district, wards, address } = req.body;
+            const shippingInfo = { fullName, phone, city, district, wards, address }; // fullName, phone, city, district, wards, address
+            const paid = req.body.paid;
             let shippingPrice = req.body.shippingPrice;
-            const shippingInfo = {
-                fullName: fullName,
-                phone: phone,
-                address: address,
-            };
             const cart = await CartModel.findOne({ user: req.user.id }).populate({
                 path: "cartItems",
                 populate: { path: "product" },
@@ -26,7 +23,6 @@ const orderController = {
                     message: "Không tìm thấy giỏ hàng !",
                 });
             let totalPrice = 0;
-
             // * GET PRODUCT DETAILS
             const orderItems = cart.cartItems.map((cartItem) => {
                 totalPrice +=
@@ -49,7 +45,6 @@ const orderController = {
 
             // * Check price shipping
             if (!shippingPrice) shippingPrice = 30000;
-
             // * create new order model
             const newOrder = new OrderModel({
                 shippingInfo: shippingInfo,
@@ -60,6 +55,11 @@ const orderController = {
             });
             // * Save order
             await newOrder.save();
+            if (paid) {
+                newOrder.paid = true;
+                newOrder.paidAt = Date.now();
+                await newOrder.save();
+            }
             // * Tìm User
             const user = await UserModel.findById(req.user.id);
             if (!user)
@@ -72,7 +72,7 @@ const orderController = {
             var message = msg(
                 newOrder,
                 "Cảm ơn bạn đã đặt hàng !",
-                "đã được đặt thành công và chúng tối đang xử lý.",
+                "đã được đặt thành công và chúng tôi đang xử lý.",
                 user.email
             );
             try {
@@ -203,7 +203,7 @@ const orderController = {
                 options.message = msg(
                     order,
                     "Đơn hàng của bạn đang được giao",
-                    `đang được giao đến địa chỉ <b>${order.shippingInfo.address}</b>`
+                    `đang được giao đến địa chỉ <b>${order.shippingInfo.address}, ${order.shippingInfo.wards}, ${order.shippingInfo.district}, ${order.shippingInfo.city}</b>`
                 );
             }
             order.orderStatus = req.body.orderStatus;
@@ -238,7 +238,7 @@ const orderController = {
                     success: false,
                     message: "Không tìm thấy đơn đặt hàng với ID được chỉ định !",
                 });
-            await UserModel.updateMany({
+            await UserModel.updateOne({
                 orders: req.params.id,
             }, {
                 $pull: { orders: req.params.id },
