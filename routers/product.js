@@ -35,9 +35,10 @@ router.get("/product/:id", productController.getProductDetails);
 router.get(
     "/admin/products",
     middlewareController.verifyTokenAndAdminAuth,
-    productController.getAdminProducts
+    productController.getAllProduct
 );
-
+// * GET PRODUCT DETAIL
+router.get("/admin/product/:id", productController.getProductDetails);
 // ! CREATE PRODUCT --- ADMIN ---- Many size color
 router.post(
     "/admin/product/new",

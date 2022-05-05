@@ -40,17 +40,17 @@ const productController = {
         }
     },
     // * GET ALL PRODUCT ---- ADMIN
-    getAdminProducts: async(req, res) => {
-        try {
-            const products = await ProductModel.find();
-            res.status(200).json({
-                success: true,
-                products,
-            });
-        } catch (error) {
-            res.status(500).json({ error: error });
-        }
-    },
+    // getAdminProducts: async(req, res) => {
+    //     try {
+    //         const products = await ProductModel.find();
+    //         res.status(200).json({
+    //             success: true,
+    //             products,
+    //         });
+    //     } catch (error) {
+    //         res.status(500).json({ error: error });
+    //     }
+    // },
 
     // * GET PRODUCT DETAILS
     getProductDetails: async(req, res) => {
