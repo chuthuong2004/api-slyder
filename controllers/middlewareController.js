@@ -91,6 +91,14 @@ const middlewareController = {
         .isNumeric({ min: 1 })
         .withMessage("Quantity is at least 1"),
     ],
+    validateOrder: [
+        check("fullName").notEmpty().withMessage("Vui lòng nhập họ và tên !"),
+        check("phone").notEmpty().withMessage("Vui lòng nhập số điện thoại !"),
+        check("city").notEmpty().withMessage("Vui lòng chọn tỉnh / thành phố !"),
+        check("district").notEmpty().withMessage("Vui lòng chọn quận / huyện !"),
+        check("wards").notEmpty().withMessage("Vui lòng chọn xã / phường !"),
+        check("address").notEmpty().withMessage("Vui lòng nhập địa chỉ !"),
+    ],
     isRequestValidated: (req, res, next) => {
         const errors = validationResult(req);
         if (errors.array().length > 0) {

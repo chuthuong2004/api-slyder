@@ -7,6 +7,8 @@ const router = express.Router();
 router.post(
     "/order/new",
     middlewareController.verifyToken,
+    middlewareController.validateOrder,
+    middlewareController.isRequestValidated,
     orderController.newOrder
 );
 
