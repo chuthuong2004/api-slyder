@@ -60,7 +60,10 @@ const authController = {
                     username: req.body.username,
                 })
                 .select("+password")
-                .populate("cart")
+                .populate({
+                    path: "cart",
+                    populate: { path: "user" },
+                })
                 .populate({
                     path: "reviews",
                     populate: { path: "product" },
