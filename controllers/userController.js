@@ -19,16 +19,14 @@ const userController = {
                 limit = 0;
             }
             var skip = (page - 1) * limit;
-            const users = await UserModel.find()
-                .skip(skip)
-                .limit(limit)
-                .populate("cart")
-                .populate({
-                    path: "reviews",
-                    populate: { path: "product" },
-                })
-                .populate("blogs")
-                .populate("orders");
+            const users = await UserModel.find().skip(skip).limit(limit);
+            // .populate("cart")
+            // .populate({
+            //     path: "reviews",
+            //     populate: { path: "product" },
+            // })
+            // .populate("blogs")
+            // .populate("orders");
 
             const userCount = await UserModel.countDocuments();
             res.status(200).json({
