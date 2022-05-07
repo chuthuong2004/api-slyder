@@ -57,8 +57,16 @@ const authController = {
         try {
             // kiểm tra username hợp lệ
             const user = await UserModel.findOne({
-                username: req.body.username,
-            }).select("+password");
+                    username: req.body.username,
+                })
+                .select("+password")
+                .populate("cart")
+                .populate({
+                    path: "reviews",
+                    populate: { path: "product" },
+                })
+                .populate("blogs")
+                .populate("orders");
             if (!user) {
                 return res
                     .status(404)
