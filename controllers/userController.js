@@ -81,6 +81,10 @@ const userController = {
             username: req.body.username,
             email: req.body.email,
         };
+        if (req.file) {
+            newUserData.avatar =
+                process.env.API + "public/avatars/" + req.file.filename;
+        }
         const user = await UserModel.findByIdAndUpdate(req.user.id, newUserData, {
             new: true,
             runValidators: true,
