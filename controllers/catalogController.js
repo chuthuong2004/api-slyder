@@ -2,7 +2,7 @@ import { CatalogModel } from "../models/CatalogModel.js";
 import { CategoryModel } from "../models/CategoryModel.js";
 
 const catalogController = {
-    // ! GET ALL CATALOG --- PAGINATION
+    // * GET ALL CATALOG --- PAGINATION
     getAllCatalog: async(req, res) => {
         try {
             var page = req.query.page * 1;
@@ -29,6 +29,31 @@ const catalogController = {
                         },
                     },
                 });
+            res.status(200).json({
+                success: true,
+                catalogsCount,
+                resultPerPage: limit,
+                catalogs,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+
+    getAllCatalogV2: async(req, res) => {
+        try {
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+            const catalogsCount = await CatalogModel.countDocuments();
+            const catalogs = await CatalogModel.find().skip(skip).limit(limit);
             res.status(200).json({
                 success: true,
                 catalogsCount,
@@ -97,6 +122,17 @@ const catalogController = {
         }
     },
 
+    getCatalogV2: async(req, res) => {
+        try {
+            const catalog = await CatalogModel.findById(req.params.id);
+            res.status(200).json({
+                success: true,
+                catalog,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
     // * CREATE CATALOG
     addCatalog: async(req, res) => {
         try {

@@ -39,6 +39,32 @@ const productController = {
             res.status(500).json({ error: error });
         }
     },
+    // GET ALL PRODUCT V2 APP
+    getAllProductV2: async(req, res) => {
+        try {
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+            const products = await ProductModel.find().skip(skip).limit(limit);
+            const productsCount = await ProductModel.countDocuments();
+            res.status(200).json({
+                success: true,
+                countDocument: productsCount,
+                resultPerPage: limit,
+                products,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+
     // * GET ALL PRODUCT ---- ADMIN
     // getAdminProducts: async(req, res) => {
     //     try {
@@ -75,6 +101,22 @@ const productController = {
         }
     },
 
+    getProductDetailsV2: async(req, res) => {
+        try {
+            const product = await ProductModel.findById(req.params.id);
+            if (!product)
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy sản phẩm !",
+                });
+            res.status(200).json({
+                success: true,
+                product,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
     // ! CREATE PRODCUCT --- HANDLE IMAGES ---DONE--- ----handle add many size, color and amount
     createProduct: async(req, res) => {
         try {
@@ -261,6 +303,51 @@ const productController = {
                     path: "reviews",
                     populate: { path: "user" },
                 });
+            const countDocument = await ProductModel.countDocuments({
+                $or: [
+                    { name: { $regex: new RegExp(".*" + search + ".*", "i") } },
+                    {
+                        keywords: {
+                            $regex: new RegExp(".*" + search + ".*", "i"),
+                        },
+                    },
+                ],
+            });
+            res.status(200).json({
+                success: true,
+                countDocument,
+                resultPerPage: limit,
+                products: products,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+    searchV2: async(req, res) => {
+        try {
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            let search = req.query.q;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+            const products = await ProductModel.find({
+                    $or: [
+                        { name: { $regex: new RegExp(".*" + search + ".*", "i") } },
+                        {
+                            keywords: {
+                                $regex: new RegExp(".*" + search + ".*", "i"),
+                            },
+                        },
+                    ],
+                })
+                .skip(skip)
+                .limit(limit);
             const countDocument = await ProductModel.countDocuments({
                 $or: [
                     { name: { $regex: new RegExp(".*" + search + ".*", "i") } },

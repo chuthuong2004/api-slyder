@@ -19,14 +19,16 @@ const userController = {
                 limit = 0;
             }
             var skip = (page - 1) * limit;
-            const users = await UserModel.find().skip(skip).limit(limit);
-            // .populate("cart")
-            // .populate({
-            //     path: "reviews",
-            //     populate: { path: "product" },
-            // })
-            // .populate("blogs")
-            // .populate("orders");
+            const users = await UserModel.find()
+                .skip(skip)
+                .limit(limit)
+                .populate("cart")
+                .populate({
+                    path: "reviews",
+                    populate: { path: "product" },
+                })
+                .populate("blogs")
+                .populate("orders");
 
             const userCount = await UserModel.countDocuments();
             res.status(200).json({
@@ -74,7 +76,18 @@ const userController = {
             user,
         });
     },
-
+    // * GET USER DETAILS
+    getUserDetailsV2: async(req, res) => {
+        const user = await UserModel.findById(req.user.id);
+        if (!user)
+            return res
+                .status(404)
+                .json({ success: false, message: "Không tìm thấy người dùng !" });
+        res.status(200).json({
+            success: true,
+            user,
+        });
+    },
     // * UPDATE USER PROFILE
     updateProfile: async(req, res) => {
         const newUserData = {
@@ -93,6 +106,7 @@ const userController = {
 
         res.status(200).json({
             success: true,
+            message: "Cập nhật người dùng thành công !",
             user,
         });
     },

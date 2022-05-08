@@ -37,6 +37,31 @@ const categoryController = {
         }
     },
 
+    // * GET ALL CATEGORIES --- PAGINATION --- v2
+    getAllCategoryV2: async(req, res) => {
+        try {
+            var page = req.query.page * 1;
+            var limit = req.query.limit * 1;
+            if ((limit && !page) || (page == 0 && limit == 0)) {
+                page = 1;
+            }
+            if (!page && !limit) {
+                page = 1;
+                limit = 0;
+            }
+            var skip = (page - 1) * limit;
+            const categoriesCount = await CategoryModel.countDocuments();
+            const categories = await CategoryModel.find().skip(skip).limit(limit);
+            res.status(200).json({
+                success: true,
+                countDocument: categoriesCount,
+                resultPerPage: limit,
+                categories,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
     // * GET CATEGORY DETAILS
     getCategoryDetails: async(req, res) => {
         try {
@@ -48,6 +73,24 @@ const categoryController = {
                     path: "products",
                     populate: { path: "reviews" },
                 });
+            if (!category)
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy danh mục !",
+                });
+            res.status(200).json({
+                success: true,
+                category,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+
+    // * GET CATEGORY DETAILS -- v2
+    getCategoryDetailsV2: async(req, res) => {
+        try {
+            const category = await CategoryModel.findById(req.params.id);
             if (!category)
                 return res.status(404).json({
                     success: false,
