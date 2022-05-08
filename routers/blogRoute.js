@@ -25,10 +25,10 @@ const upload = multer({ storage });
 //http://localhost:5000/posts
 
 // * GET ALL BLOGS --- PAGINATION
-router.get("/blogs", blogController.getAllBlog);
+router.get("/blogs", blogController.getAllBlogV2);
 
 // * GET BLOG DETAILS
-router.get("/blog/:id", blogController.getAblog);
+router.get("/blog/:id", blogController.getAblogV2);
 
 // * CREATE BLOG
 router.post(

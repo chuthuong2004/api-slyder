@@ -40,6 +40,9 @@ import categoryRoute from "./routers/categoryRoute.js";
 import catalogRoute from "./routers/catalogRoute.js";
 import userRoute from "./routers/userRoute.js";
 import blogRoute from "./routers/blogRoute.js";
+import cartRoute from "./routers/cartRoute.js";
+import orderRoute from "./routers/orderRoute.js";
+import reviewRoute from "./routers/reviewRoute.js";
 
 app.use("/api/v1", product);
 app.use("/api/v1", category);
@@ -57,9 +60,9 @@ app.use("/api/v2", catalogRoute);
 app.use("/api/v2", auth); // OK
 app.use("/api/v2", userRoute);
 app.use("/api/v2", blogRoute);
-// app.use("/api/v2", cartRoute);
-// app.use("/api/v2", orderRoute);
-// app.use("/api/v2", reviewRoute);
+app.use("/api/v2", cartRoute);
+app.use("/api/v2", orderRoute);
+app.use("/api/v2", reviewRoute);
 mongoose
     .connect(URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
