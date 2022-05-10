@@ -208,6 +208,13 @@ const orderController = {
             }
             order.orderStatus = req.body.orderStatus;
             if (req.body.orderStatus === "Delivered") {
+                order.orderItems.forEach(async(orderItem) => {
+                    const product = await ProductModel.findById(orderItem.product);
+                    if (product) {
+                        product.quantitySold += 1;
+                        await product.save();
+                    }
+                });
                 order.deliveredAt = Date.now();
                 options.subject = "Đơn hàng tại LTH Store đã được giao thành công !";
                 options.message = msg(
