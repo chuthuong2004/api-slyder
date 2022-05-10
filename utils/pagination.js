@@ -1,21 +1,38 @@
-export const pagination = (page, limit, model) => {
-    var item = []
-    if (limit) {
-        if (!page) page = 1
-        page = parseInt(page)
-        limit = parseInt(limit)
-        var skip = (page - 1) * limit
-        model.find({}).skip(skip).limit(limit).then((data) => {
-                console.log(data);
-                item = data
-            })
-            .catch((err) => {
-                console.log(err);
-            })
-    } else {
-        // get all
-        model.find().then((data) => { item = data }).catch((err) => { console.log(err); });
-    }
-    console.log(item);
-    return item
+export function APIFeatures(query, queryString) {
+    this.query = query;
+    this.queryString = queryString;
+
+    this.paginating = () => {
+        var page = this.queryString.page * 1 || 1;
+        var limit = this.queryString.limit * 1 || 0;
+        var skip = (page - 1) * limit;
+        this.query = this.query.limit(limit).skip(skip);
+        return this;
+    };
+    this.sorting = () => {
+        var sort = this.queryString.sort || "-createdAt";
+        this.query = this.query.sort(sort);
+        return this;
+    };
+
+    this.searching = () => {
+        var search = this.queryString.sort || "-createdAt";
+        this.query = this.query.sort(sort);
+        return this;
+    };
+    this.filtering = () => {
+        const queryObj = {...this.queryString };
+        console.log(queryObj);
+        const excludedField = ["page", "sort", "limit", "search"];
+        excludedField.forEach((item) => delete queryObj[item]);
+        let queryStr = JSON.stringify(queryObj);
+        queryStr = queryStr.replace(
+            /\b(gte|gt|lt|lte|regex)\b/g,
+            (match) => "$" + match
+        );
+        const newQuery = JSON.parse(queryStr);
+        console.log(newQuery);
+        this.query = this.query.find(newQuery);
+        return this;
+    };
 }

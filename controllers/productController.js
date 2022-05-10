@@ -3,6 +3,7 @@ import { CategoryModel } from "../models/CategoryModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { ReviewModel } from "../models/ReviewModel.js";
 import { UserModel } from "../models/UserModal.js";
+import { APIFeatures } from "../utils/pagination.js";
 const productController = {
     // ! GET ALL PRODUCT ----- PAGINATION
     getAllProduct: async(req, res) => {
@@ -42,22 +43,17 @@ const productController = {
     // GET ALL PRODUCT V2 APP
     getAllProductV2: async(req, res) => {
         try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const products = await ProductModel.find().skip(skip).limit(limit);
+            const features = new APIFeatures(ProductModel.find(), req.query)
+                .paginating()
+                .sorting()
+                .filtering();
+
+            var products = await features.query;
             const productsCount = await ProductModel.countDocuments();
             res.status(200).json({
                 success: true,
-                countDocument: productsCount,
-                resultPerPage: limit,
+                productsCount: productsCount,
+                resultPerPage: req.query.limit * 1 || 0,
                 products,
             });
         } catch (error) {
