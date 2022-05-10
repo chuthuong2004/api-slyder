@@ -57,6 +57,10 @@ const productSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Review",
     }, ],
+    rate: {
+        type: Number,
+        default: 0,
+    },
     slug: { type: String, slug: "name", unique: true },
 }, { timestamps: true });
 // Add plugin

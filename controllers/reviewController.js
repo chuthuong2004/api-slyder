@@ -104,7 +104,19 @@ const reviewController = {
             await review.save();
             if (product) {
                 const prod = await ProductModel.findById(product);
-                await prod.updateOne({ $push: { reviews: review._id } });
+                const prodOfReview = await ReviewModel.find({
+                    product: product,
+                    enable: true,
+                });
+                const totalAmount = prodOfReview.reduce(
+                    (total, item) => total + item.star,
+                    0
+                );
+                const rate = totalAmount / prodOfReview.length;
+                await prod.updateOne({
+                    $push: { reviews: review._id },
+                    $set: { rate: rate },
+                });
             }
             if (req.user.id) {
                 const user = await UserModel.findById(req.user.id);
