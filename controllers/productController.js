@@ -49,10 +49,9 @@ const productController = {
                 .filtering();
 
             var products = await features.query;
-            const productsCount = await ProductModel.countDocuments();
             res.status(200).json({
                 success: true,
-                productsCount: productsCount,
+                productsCount: products.length,
                 resultPerPage: req.query.limit * 1 || 0,
                 products,
             });
