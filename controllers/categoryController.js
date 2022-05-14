@@ -40,22 +40,15 @@ const categoryController = {
     // * GET ALL CATEGORIES --- PAGINATION --- v2
     getAllCategoryV2: async(req, res) => {
         try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const categoriesCount = await CategoryModel.countDocuments();
-            const categories = await CategoryModel.find().skip(skip).limit(limit);
+            const features = new APIFeatures(CategoryModel.find(), req.query)
+                .paginating()
+                .sorting()
+                .filtering();
+            var categories = await features.query;
             res.status(200).json({
                 success: true,
-                countDocument: categoriesCount,
-                resultPerPage: limit,
+                countDocuments: categories.length,
+                resultPerPage: req.query.limit * 1 || 0,
                 categories,
             });
         } catch (error) {
