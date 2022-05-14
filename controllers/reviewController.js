@@ -39,7 +39,9 @@ const reviewController = {
     getAllReviewV2ByProduct: async(req, res) => {
         try {
             const features = new APIFeatures(
-                    ReviewModel.find({ product: req.params.idProduct, enable: true }),
+                    ReviewModel.find({ product: req.params.idProduct, enable: true })
+                    .populate("user")
+                    .populate("product"),
                     req.query
                 )
                 .paginating()
