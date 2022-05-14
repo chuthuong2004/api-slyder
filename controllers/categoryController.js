@@ -1,6 +1,7 @@
 import { CatalogModel } from "../models/CatalogModel.js";
 import { CategoryModel } from "../models/CategoryModel.js";
 import { ProductModel } from "../models/ProductModel.js";
+import { APIFeatures } from "../utils/pagination.js";
 const categoryController = {
     // * GET ALL CATEGORIES --- PAGINATION
     getAllCategory: async(req, res) => {

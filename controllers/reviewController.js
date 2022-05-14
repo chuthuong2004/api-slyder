@@ -1,7 +1,7 @@
 import { ProductModel } from "../models/ProductModel.js";
 import { ReviewModel } from "../models/ReviewModel.js";
 import { UserModel } from "../models/UserModal.js";
-
+import { APIFeatures } from "../utils/pagination.js";
 const reviewController = {
     getAllReview: async(req, res) => {
         try {
@@ -38,14 +38,6 @@ const reviewController = {
 
     getAllReviewV2ByProduct: async(req, res) => {
         try {
-            const countDocument = await ReviewModel.countDocuments();
-            res.status(200).json({
-                success: true,
-                countDocument: countDocument,
-                resultPerPage: limit,
-                reviews,
-            });
-
             const features = new APIFeatures(
                     ReviewModel.find({ product: req.params.idProduct, enable: true }),
                     req.query
