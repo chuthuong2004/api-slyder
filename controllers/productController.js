@@ -59,6 +59,26 @@ const productController = {
             res.status(500).json({ error: error });
         }
     },
+    getAllProductByCategory: async(req, res) => {
+        try {
+            const features = new APIFeatures(
+                    ProductModel.find({ category: req.params.idCate }),
+                    req.query
+                )
+                .paginating()
+                .sorting()
+                .filtering();
+            var products = await features.query;
+            res.status(200).json({
+                success: true,
+                countDocuments: products.length,
+                resultPerPage: req.query.limit * 1 || 0,
+                products,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
 
     // * GET ALL PRODUCT ---- ADMIN
     // getAdminProducts: async(req, res) => {

@@ -111,15 +111,26 @@ const reviewController = {
     },
     addReview: async(req, res) => {
         try {
+            var productsOrder = req.orderItems.map((item) => item.product.toString());
+
             const { content, product, star } = req.body;
+            var infoProduct = req.orderItems.find(
+                (item) => item.product.toString() === product
+            );
+            const infoProductOrdered = {
+                color: infoProduct.color,
+                size: infoProduct.size,
+                quantity: infoProduct.quantity,
+            };
             const newReview = {
                 content: content,
                 product: product,
                 star: star,
                 user: req.user.id,
+                infoProductOrdered: infoProductOrdered,
             };
             let message = "Nhận xét của bạn đang chờ được kiểm duyệt !";
-            if (req.isDelivered && req.products.includes(product)) {
+            if (req.isDelivered && productsOrder.includes(product)) {
                 newReview.enable = true;
                 message = "Nhận xét sản phẩm thành công !";
             }

@@ -119,8 +119,7 @@ const middlewareController = {
             }
             if (order.orderStatus === "Delivered") {
                 console.log("order đã được giao hàng");
-                var products = order.orderItems.map((item) => item.product.toString());
-                req.products = products;
+                req.orderItems = order.orderItems;
                 req.isDelivered = true;
             } else {
                 console.log("Order chưa giao hàng");
