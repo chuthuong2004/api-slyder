@@ -51,7 +51,7 @@ const productController = {
             var products = await features.query;
             res.status(200).json({
                 success: true,
-                productsCount: products.length,
+                countDocuments: products.length,
                 resultPerPage: req.query.limit * 1 || 0,
                 products,
             });

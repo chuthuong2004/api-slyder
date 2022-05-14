@@ -35,6 +35,35 @@ const reviewController = {
             res.status(500).json({ error: error });
         }
     },
+
+    getAllReviewV2ByProduct: async(req, res) => {
+        try {
+            const countDocument = await ReviewModel.countDocuments();
+            res.status(200).json({
+                success: true,
+                countDocument: countDocument,
+                resultPerPage: limit,
+                reviews,
+            });
+
+            const features = new APIFeatures(
+                    ReviewModel.find({ product: req.params.idProduct, enable: true }),
+                    req.query
+                )
+                .paginating()
+                .sorting()
+                .filtering();
+            var reviews = await features.query;
+            res.status(200).json({
+                success: true,
+                counDocuments: reviews.length,
+                resultPerPage: req.query.limit * 1 || 0,
+                reviews,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
     getAdminReviews: async(req, res) => {
         try {
             var page = req.query.page * 1;

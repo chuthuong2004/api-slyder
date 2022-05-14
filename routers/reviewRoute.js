@@ -6,6 +6,9 @@ const router = express.Router();
 // * GET ALL REVIEWS
 router.get("/reviews", reviewController.getAllReview); //
 
+// * GET ALL REVIEWS BY ID PRODUCT
+router.get("/reviews/:idProduct", reviewController.getAllReviewV2ByProduct); //
+
 // * GET ALL REVIEWS --- ADMIN
 router.get(
     "/reviews",
