@@ -82,7 +82,18 @@ const cartController = {
         try {
             const cartItems = req.body;
             // tìm cart nào mà user này đã đăng nhập xem có tồn tại cart hay chưa
-            const cart = await CartModel.findOne({ user: req.user.id });
+            const cart = await CartModel.findOne({ user: req.user.id })
+                .populate({
+                    path: "user",
+                    select: "_id username email isAdmin",
+                })
+                .populate({
+                    path: "cartItems",
+                    populate: {
+                        path: "product",
+                        select: "_id name price discount images detail",
+                    },
+                });
             if (cart) {
                 // nếu cart tồn tại thì update số lượng product trong cart
                 const product = cartItems.product;
