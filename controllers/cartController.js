@@ -230,18 +230,7 @@ const cartController = {
     // * REMOVE ITEM FORM CART
     removeItemFromCart: async(req, res) => {
         try {
-            const cart = await CartModel.findOne({ user: req.user.id })
-                .populate({
-                    path: "user",
-                    select: "_id username email isAdmin",
-                })
-                .populate({
-                    path: "cartItems",
-                    populate: {
-                        path: "product",
-                        select: "_id name price discount images detail",
-                    },
-                });
+            const cart = await CartModel.findOne({ user: req.user.id });
             if (cart) {
                 // nếu cart tồn tại thì update số lượng product trong cart
                 const cartItemId = req.params.id;
@@ -265,12 +254,24 @@ const cartController = {
                     };
                     CartModel.findOneAndUpdate(condition, update, { new: true }).exec(
                         (error, _cart) => {
+                            const newCart = _cart
+                                .populate({
+                                    path: "user",
+                                    select: "_id username email isAdmin",
+                                })
+                                .populate({
+                                    path: "cartItems",
+                                    populate: {
+                                        path: "product",
+                                        select: "_id name price discount images detail",
+                                    },
+                                });
                             if (error) return res.status(400).json({ error: error });
                             if (_cart) {
                                 return res.status(200).json({
                                     success: true,
                                     message: "Cập nhật giỏ hàng thành công !",
-                                    cart: _cart,
+                                    cart: newCart,
                                 });
                             }
                         }
