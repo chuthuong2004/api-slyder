@@ -247,7 +247,7 @@ const cartController = {
                             if (_cart) {
                                 return res.status(200).json({
                                     success: true,
-                                    message: "Updated cart item successfully",
+                                    message: "Cập nhật giỏ hàng thành công !",
                                     cart: _cart,
                                 });
                             }
@@ -256,7 +256,7 @@ const cartController = {
                 } else {
                     return res.status(200).json({
                         success: false,
-                        error: "Không tìm thấy cart item !",
+                        message: "Không tìm thấy cart item !",
                     });
                 }
             }
