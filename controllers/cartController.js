@@ -263,13 +263,13 @@ const cartController = {
                     let update = {
                         $pull: { cartItems: { _id: cartItem._id } },
                     };
-                    await CartModel.findOneAndUpdate(condition, update, {
+                    const newCart = await CartModel.findOneAndUpdate(condition, update, {
                         new: true,
                     });
                     return res.status(200).json({
                         success: true,
                         message: "Cập nhật giỏ hàng thành công !",
-                        cart: cart,
+                        cart: newCart,
                     });
                 } else {
                     return res.status(200).json({
