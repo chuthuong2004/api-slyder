@@ -80,10 +80,7 @@ const cartController = {
 
     getMyCartV2: async(req, res) => {
         try {
-            const cart = await CartModel.findOne({ user: req.user.id }).populate({
-                path: "user",
-                select: "_id username email isAdmin",
-            });
+            const cart = await CartModel.findOne({ user: req.user.id });
             res.status(200).json({ success: true, cart });
         } catch (err) {
             res.status(500).json({ error: err });
