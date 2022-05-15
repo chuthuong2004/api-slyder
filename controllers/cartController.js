@@ -230,7 +230,18 @@ const cartController = {
     // * REMOVE ITEM FORM CART
     removeItemFromCart: async(req, res) => {
         try {
-            const cart = await CartModel.findOne({ user: req.user.id });
+            const cart = await CartModel.findOne({ user: req.user.id })
+                .populate({
+                    path: "user",
+                    select: "_id username email isAdmin",
+                })
+                .populate({
+                    path: "cartItems",
+                    populate: {
+                        path: "product",
+                        select: "_id name price discount images detail",
+                    },
+                });
             if (cart) {
                 // nếu cart tồn tại thì update số lượng product trong cart
                 const cartItemId = req.params.id;
