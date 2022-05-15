@@ -77,20 +77,6 @@ const cartController = {
             res.status(500).json({ error: err });
         }
     },
-
-    getMyCartV2: async(req, res) => {
-        try {
-            const cart = await CartModel.findOne({ user: req.user.id });
-            if (!cart)
-                return res.status(404).json({
-                    success: false,
-                    message: "Không tìm thấy giỏ hàng",
-                });
-            res.status(200).json({ success: true, cart });
-        } catch (err) {
-            res.status(500).json({ error: err });
-        }
-    },
     // * ADD ITEM TO CART
     addItemToCart: async(req, res) => {
         try {

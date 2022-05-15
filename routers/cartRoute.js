@@ -10,7 +10,7 @@ router.get("/carts", cartController.getAllCart);
 router.get(
     "/cart/my-cart",
     middlewareController.verifyToken,
-    cartController.getMyCartV2
+    cartController.getMyCart
 );
 
 // * GET A CART
