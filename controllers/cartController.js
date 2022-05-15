@@ -264,8 +264,19 @@ const cartController = {
                         $pull: { cartItems: { _id: cartItem._id } },
                     };
                     const newCart = await CartModel.findOneAndUpdate(condition, update, {
-                        new: true,
-                    });
+                            new: true,
+                        })
+                        .populate({
+                            path: "user",
+                            select: "_id username email isAdmin",
+                        })
+                        .populate({
+                            path: "cartItems",
+                            populate: {
+                                path: "product",
+                                select: "_id name price discount images detail",
+                            },
+                        });
                     return res.status(200).json({
                         success: true,
                         message: "Cập nhật giỏ hàng thành công !",
