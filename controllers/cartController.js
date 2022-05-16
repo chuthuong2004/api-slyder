@@ -106,7 +106,7 @@ const cartController = {
                 const size = cartItems.size;
                 const item = cart.cartItems.find(
                     (cartItem) =>
-                    cartItem.product == product &&
+                    cartItem.product == product._id &&
                     cartItem.color == color &&
                     cartItem.size == size
                 );
