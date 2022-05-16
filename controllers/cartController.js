@@ -245,7 +245,7 @@ const cartController = {
                     return res.status(200).json({
                         success: true,
                         message: "Cập nhật giỏ hàng thành công !",
-                        cart: newCart,
+                        // cart: newCart,
                     });
                 }
                 return res.status(404).json({
