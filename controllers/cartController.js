@@ -72,6 +72,11 @@ const cartController = {
                         select: "_id name price discount images detail",
                     },
                 });
+            if (!cart)
+                return res.status(404).json({
+                    success: true,
+                    message: "Không tìm thấy giỏ hàng",
+                });
             res.status(200).json({ success: true, cart });
         } catch (err) {
             res.status(500).json({ error: err });
