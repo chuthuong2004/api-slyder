@@ -197,7 +197,7 @@ const cartController = {
             if (cart) {
                 // nếu cart tồn tại thì update số lượng product trong cart
                 const cartItemId = req.params.id;
-                const cartItem = cart.cartItems.find((c) => (c._id = cartItemId));
+                const cartItem = cart.cartItems.find((c) => c._id == cartItemId);
                 if (cartItem) {
                     let condition, update;
                     if (quantityUpdate == 0) {
@@ -228,23 +228,34 @@ const cartController = {
                             },
                         };
                     }
-                    CartModel.findOneAndUpdate(condition, update, { new: true }).exec(
-                        (error, _cart) => {
-                            if (error) return res.status(400).json({ error: error });
-                            if (_cart) {
-                                return res.status(200).json({
-                                    success: true,
-                                    message: "Cập nhật giỏ hàng thành công !",
-                                    cart: _cart,
-                                });
-                            }
-                        }
-                    );
+                    const newCart = await CartModel.findOneAndUpdate(condition, update, {
+                            new: true,
+                        })
+                        .populate({
+                            path: "user",
+                            select: "_id username email isAdmin",
+                        })
+                        .populate({
+                            path: "cartItems",
+                            populate: {
+                                path: "product",
+                                select: "_id name price discount images detail",
+                            },
+                        });
+                    return res.status(200).json({
+                        success: true,
+                        message: "Cập nhật giỏ hàng thành công !",
+                        cart: newCart,
+                    });
                 }
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy cart item !",
+                });
             } else {
                 return res.status(404).json({
                     success: false,
-                    message: "Không tìm thấy cart !",
+                    message: "Không tìm thấy giỏ hàng của bạn !",
                 });
             }
         } catch (err) {
