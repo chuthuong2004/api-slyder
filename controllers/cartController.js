@@ -106,7 +106,7 @@ const cartController = {
                 const size = cartItems.size;
                 const item = cart.cartItems.find(
                     (cartItem) =>
-                    cartItem.product == product._id &&
+                    cartItem.product._id == product &&
                     cartItem.color == color &&
                     cartItem.size == size
                 );
@@ -130,18 +130,25 @@ const cartController = {
                         $push: { cartItems: cartItems },
                     };
                 }
-                CartModel.findOneAndUpdate(condition, update, { new: true }).exec(
-                    (error, _cart) => {
-                        if (error) return res.status(400).json({ error: error });
-                        if (_cart) {
-                            return res.status(200).json({
-                                success: true,
-                                message: "Cập nhật giỏ hàng thành công !",
-                                cart: _cart,
-                            });
-                        }
-                    }
-                );
+                const newCart = await CartModel.findOneAndUpdate(condition, update, {
+                        new: true,
+                    })
+                    .populate({
+                        path: "user",
+                        select: "_id username email isAdmin",
+                    })
+                    .populate({
+                        path: "cartItems",
+                        populate: {
+                            path: "product",
+                            select: "_id name price discount images detail",
+                        },
+                    });
+                return res.status(200).json({
+                    success: true,
+                    message: "Thêm giỏ hàng thành công !",
+                    cart: newCart,
+                });
             } else {
                 // nếu user chưa có cart thì thêm mới 1 cart cho user
                 const newCart = await new CartModel({
@@ -155,6 +162,7 @@ const cartController = {
                 }
                 res.status(200).json({
                     success: true,
+                    message: "Thêm giỏ hàng thành công !",
                     cart: newCart,
                 });
             }
