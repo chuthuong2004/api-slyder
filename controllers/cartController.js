@@ -153,7 +153,12 @@ const cartController = {
                     user: req.user.id,
                     cartItems: [cartItems],
                 });
-                await newCart
+                await newCart.save();
+                if (req.user.id) {
+                    const user = await UserModel.findById(req.user.id);
+                    await user.updateOne({ cart: newCart._id });
+                }
+                var cartResponse = await CartModel.findOne({ user: req.user.id })
                     .populate({
                         path: "user",
                         select: "_id username email isAdmin",
@@ -164,16 +169,11 @@ const cartController = {
                             path: "product",
                             select: "_id name price discount images detail",
                         },
-                    })
-                    .save();
-                if (req.user.id) {
-                    const user = await UserModel.findById(req.user.id);
-                    await user.updateOne({ cart: newCart._id });
-                }
+                    });
                 res.status(200).json({
                     success: true,
                     message: "Thêm giỏ hàng thành công !",
-                    cart: newCart,
+                    cart: cartResponse,
                 });
             }
         } catch (err) {
