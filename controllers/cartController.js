@@ -121,7 +121,7 @@ const cartController = {
                             "cartItems.$.product": item.product,
                             "cartItems.$.color": item.color,
                             "cartItems.$.size": item.size,
-                            "cartItems.$.quantity": item.quantity + cartItems.quantity,
+                            "cartItems.$.quantity": item.quantity + cartItems.quantity * 1,
                         },
                     };
                 } else {
