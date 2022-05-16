@@ -130,9 +130,7 @@ const cartController = {
                         $push: { cartItems: cartItems },
                     };
                 }
-                const newCart = await CartModel.findOneAndUpdate(condition, update, {
-                        new: true,
-                    })
+                const newCart = await CartModel.findOneAndUpdate(condition, update)
                     .populate({
                         path: "user",
                         select: "_id username email isAdmin",
