@@ -153,7 +153,19 @@ const cartController = {
                     user: req.user.id,
                     cartItems: [cartItems],
                 });
-                await newCart.save();
+                await newCart
+                    .populate({
+                        path: "user",
+                        select: "_id username email isAdmin",
+                    })
+                    .populate({
+                        path: "cartItems",
+                        populate: {
+                            path: "product",
+                            select: "_id name price discount images detail",
+                        },
+                    })
+                    .save();
                 if (req.user.id) {
                     const user = await UserModel.findById(req.user.id);
                     await user.updateOne({ cart: newCart._id });
