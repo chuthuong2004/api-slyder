@@ -83,7 +83,7 @@ const msg = (order, title, titleMessage, email) => {
             </table>
             <h4>Địa chỉ nhận hàng</h4>
             <div style="border: 1px solid #bdbdbd; padding:10px 20px;">
-            <p>${order.shippingInfo.fullName}<br>${order.shippingInfo.address}<br>${order.shippingInfo.wards}<br>${order.shippingInfo.district}<br>${order.shippingInfo.city}<br>${order.shippingInfo.phone}<br>${email}</p>
+            <p>${order.shippingInfo.fullName}<br>${order.shippingInfo.address}<br>${order.shippingInfo.ward}<br>${order.shippingInfo.district}<br>${order.shippingInfo.province}<br>${order.shippingInfo.phone}<br>${email}</p>
             </div>
             <p>Thanks for using LTH Store !</p>
         </div>

@@ -47,6 +47,17 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Order",
     }, ],
+    shipmentDetails: [{
+        fullName: {
+            type: String,
+        },
+        phone: { type: String },
+        province: { type: String },
+        district: { type: String },
+        ward: { type: String },
+        address: { type: String },
+        isDefault: { type: Boolean, default: false },
+    }, ],
 }, { timestamps: true });
 
 export const UserModel = mongoose.model("User", userSchema);

@@ -1,6 +1,6 @@
 import { CartModel } from "../models/CartModel.js";
 import { ProductModel } from "../models/ProductModel.js";
-import { UserModel } from "../models/UserModal.js";
+import { UserModel } from "../models/UserModel.js";
 
 const cartController = {
     // * GET ALL CART
@@ -111,7 +111,21 @@ const cartController = {
                     cartItem.size == size
                 );
                 let condition, update;
+
                 if (item) {
+                    const detail = item.product.detail.find(
+                        (detail) => detail.size === size
+                    );
+                    const maxQuantity = detail.detailColor.find(
+                        (detailColor) =>
+                        detailColor.color.toLowerCase() === color.toLowerCase()
+                    ).amount;
+                    if (item.quantity >= maxQuantity) {
+                        return res.status(400).json({
+                            success: false,
+                            message: "Số lượng sản phẩm không đủ !",
+                        });
+                    }
                     condition = {
                         user: req.user.id,
                         "cartItems._id": item._id,

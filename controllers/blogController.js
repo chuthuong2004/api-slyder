@@ -1,5 +1,5 @@
 import { BlogModel } from "../models/BlogModel.js";
-import { UserModel } from "../models/UserModal.js";
+import { UserModel } from "../models/UserModel.js";
 
 const blogController = {
     // * GET ALL BLOGS

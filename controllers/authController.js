@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { UserModel } from "../models/UserModal.js";
+import { UserModel } from "../models/UserModel.js";
 import jwt from "jsonwebtoken";
 let refreshTokens = [];
 

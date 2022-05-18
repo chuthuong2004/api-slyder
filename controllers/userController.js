@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import { BlogModel } from "../models/BlogModel.js";
-import { UserModel } from "../models/UserModal.js";
+import { UserModel } from "../models/UserModel.js";
 import { sendEmail } from "../utils/sendMail.js";
 import dotenv from "dotenv";
 dotenv.config();
@@ -66,49 +66,189 @@ const userController = {
 
     // * GET USER DETAILS
     getUserDetails: async(req, res) => {
-        const user = await UserModel.findById(req.user.id)
-            .populate("blogs")
-            .populate("reviews")
-            .populate("cart")
-            .populate("orders");
-        res.status(200).json({
-            success: true,
-            user,
-        });
+        try {
+            const user = await UserModel.findById(req.user.id)
+                .populate("blogs")
+                .populate("reviews")
+                .populate("cart")
+                .populate("orders");
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy người dùng !",
+                });
+            }
+            res.status(200).json({
+                success: true,
+                user,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
     },
     // * GET USER DETAILS
     getUserDetailsV2: async(req, res) => {
-        const user = await UserModel.findById(req.user.id);
-        if (!user)
-            return res
-                .status(404)
-                .json({ success: false, message: "Không tìm thấy người dùng !" });
-        res.status(200).json({
-            success: true,
-            user,
-        });
+        try {
+            const user = await UserModel.findById(req.user.id);
+            if (!user)
+                return res
+                    .status(404)
+                    .json({ success: false, message: "Không tìm thấy người dùng !" });
+            res.status(200).json({
+                success: true,
+                user,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
     },
     // * UPDATE USER PROFILE
     updateProfile: async(req, res) => {
-        const newUserData = {
-            username: req.body.username,
-            email: req.body.email,
-        };
-        if (req.file) {
-            newUserData.avatar =
-                process.env.API + "public/avatars/" + req.file.filename;
-        }
-        const user = await UserModel.findByIdAndUpdate(req.user.id, newUserData, {
-            new: true,
-            runValidators: true,
-            useFindAndModify: false,
-        });
+        try {
+            const newUserData = {
+                username: req.body.username,
+                email: req.body.email,
+            };
+            if (req.file) {
+                newUserData.avatar =
+                    process.env.API + "public/avatars/" + req.file.filename;
+            }
+            const shipmentDetail = {
+                fullName: req.body.fullName,
+                phone: req.body.phone,
+                province: req.body.province,
+                district: req.body.district,
+                ward: req.body.ward,
+                address: req.body.address,
+                isDefault: req.body.isDefault,
+            };
+            const user = await UserModel.findByIdAndUpdate(req.user.id, newUserData, {
+                new: true,
+                runValidators: true,
+                useFindAndModify: false,
+            });
 
-        res.status(200).json({
-            success: true,
-            message: "Cập nhật người dùng thành công !",
-            user,
-        });
+            res.status(200).json({
+                success: true,
+                message: "Cập nhật thông tin cá nhân thành công !",
+                user,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+    addShipmentDetail: async(req, res) => {
+        try {
+            const shipmentDetail = {
+                fullName: req.body.fullName,
+                phone: req.body.phone,
+                province: req.body.province,
+                district: req.body.district,
+                ward: req.body.ward,
+                address: req.body.address,
+                isDefault: req.body.isDefault,
+            };
+            const user = await UserModel.findById(req.user.id);
+            let update;
+            if (!user.shipmentDetails) {
+                console.log("khoong");
+                update = { $set: { shipmentDetails: shipmentDetail } };
+            } else {
+                const shipmentDetailItem = user.shipmentDetails.find(
+                    (item) =>
+                    item.fullName === req.body.fullName &&
+                    item.phone === req.body.phone &&
+                    item.province === req.body.province &&
+                    item.district === req.body.district &&
+                    item.ward === req.body.ward &&
+                    item.address === req.body.address
+                );
+                if (shipmentDetailItem) {
+                    return res.status(400).json({
+                        success: true,
+                        message: "Thông tin giao hàng đã tồn tại !",
+                    });
+                }
+                update = { $push: { shipmentDetails: shipmentDetail } };
+            }
+            const updated = await UserModel.findByIdAndUpdate(req.user.id, update, {
+                new: true,
+            });
+            res.status(200).json({
+                success: true,
+                message: "Thêm thông tin giao hàng thành công !",
+                user: updated,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+    updateShipmentDetail: async(req, res) => {
+        try {
+            // const users = await UserModel.updateMany({}, { $set: { shipmentDetails: null } });
+            // return res.status(200).json("OK");
+            const user = await UserModel.findById(req.user.id);
+            if (!user) {
+                return res
+                    .status(404)
+                    .json({ success: false, message: "Không tìm thấy user" });
+            }
+            const shipmentDetail = user.shipmentDetails.find(
+                (item) => item._id == req.params.id
+            );
+            if (!shipmentDetail) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy thông tin giao hàng của bạn !",
+                });
+            }
+            var condition = {
+                user: req.user.id,
+                "shipmentDetails._id": shipmentDetail._id,
+            };
+            var update = {
+                $set: {
+                    "shipmentDetails.$.isDefault": req.body.isDefault,
+                    "shipmentDetails.$.fullName": req.body.fullName,
+                    "shipmentDetails.$.phone": req.body.phone,
+                    "shipmentDetails.$.province": req.body.province,
+                    "shipmentDetails.$.district": req.body.district,
+                    "shipmentDetails.$.ward": req.body.ward,
+                    "shipmentDetails.$.address": req.body.address,
+                },
+            };
+            const updateUser = await UserModel.findOneAndUpdate(condition, update, {
+                new: true,
+            });
+            res.status(200).json({
+                success: true,
+                message: "Cập nhật thông tin giao hàng thành công !",
+                user: updateUser,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+    removeShipmentDetail: async(req, res) => {
+        try {
+            var condition = {
+                user: req.user.id,
+                "shipmentDetails._id": req.params.id,
+            };
+            var update = {
+                $pull: { shipmentDetails: { _id: req.params.id } },
+            };
+            const user = await UserModel.findOneAndUpdate(condition, update, {
+                new: true,
+            });
+            return res.status(200).json({
+                success: true,
+                message: "Xóa thông tin giao hàng thành công ",
+                user: user,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
     },
     // * UPDATE USER ROLE --- ADMIN
     updateUserRole: async(req, res) => {

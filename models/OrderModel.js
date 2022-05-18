@@ -11,7 +11,7 @@ const orderSchema = new mongoose.Schema({
             required: true,
         },
 
-        city: {
+        province: {
             type: String,
             required: true,
         },
@@ -21,7 +21,7 @@ const orderSchema = new mongoose.Schema({
             required: true,
         },
 
-        wards: {
+        ward: {
             type: String,
             required: true,
         },
@@ -70,25 +70,6 @@ const orderSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
-    //   paymentInfo: {
-    //     id: {
-    //       type: String,
-    //       required: true,
-    //     },
-    //     status: {
-    //       type: String,
-    //       required: true,
-    //     },
-    //   },
-    //   paidAt: {
-    //     type: Date,
-    //     required: true,
-    //   },
-    //   itemsPrice: {
-    //     type: Number,
-    //     required: true,
-    //     default: 0,
-    //   },
     taxPrice: {
         type: Number,
         required: true,

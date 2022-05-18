@@ -39,21 +39,27 @@ const middlewareController = {
         });
     },
     validateSignupRequest: [
-        check("email").notEmpty().withMessage("Vui lòng nhập địa chỉ email !"),
-        check("email").isEmail().withMessage("Địa chỉ email không hợp lệ !"),
-        check("username").notEmpty().withMessage("Vui lòng nhập tên đăng nhập !"),
+        check("email")
+        .notEmpty()
+        .withMessage("Vui lòng nhập địa chỉ email !")
+        .isEmail()
+        .withMessage("Địa chỉ email không hợp lệ !"),
         check("username")
+        .notEmpty()
+        .withMessage("Vui lòng nhập tên đăng nhập !")
         .isLength({ min: 6 })
         .withMessage("Tên đăng nhập phải có ít nhất 6 kí tự !"),
-        check("password").notEmpty().withMessage("Vui lòng nhập mật khẩu !"),
         check("password")
+        .notEmpty()
+        .withMessage("Vui lòng nhập mật khẩu !")
         .isLength({ min: 6 })
         .withMessage("Mật khẩu phải ít nhất 6 kí tự !"),
     ],
     validateSigninRequest: [
         check("username").notEmpty().withMessage("Vui lòng nhập tên đăng nhập !"),
-        check("password").notEmpty().withMessage("Vui lòng nhập mật khẩu !"),
         check("password")
+        .notEmpty()
+        .withMessage("Vui lòng nhập mật khẩu !")
         .isLength({ min: 6 })
         .withMessage("Mật khẩu phải ít nhất 6 kí tự !"),
     ],
@@ -61,42 +67,56 @@ const middlewareController = {
         check("name").notEmpty().withMessage("Vui lòng nhập tên mục lục !"),
     ],
     validateEmail: [
-        check("email").notEmpty().withMessage("Vui lòng nhập địa chỉ email !"),
-        check("email").isEmail().withMessage("Địa chỉ email không hợp lệ !"),
+        check("email")
+        .notEmpty()
+        .withMessage("Vui lòng nhập địa chỉ email !")
+        .isEmail()
+        .withMessage("Địa chỉ email không hợp lệ !"),
     ],
     validateChangePassword: [
         check("currentPassword")
         .notEmpty()
         .withMessage("Vui lòng nhập mật khẩu hiện tại !"),
-        check("newPassword").notEmpty().withMessage("Vui lòng nhập mật khẩu mới !"),
         check("newPassword")
+        .notEmpty()
+        .withMessage("Vui lòng nhập mật khẩu mới !")
         .isLength({ min: 6 })
         .withMessage("Mật khẩu mới phải có ít nhất 6 kí tự !"),
         check("confirmPassword")
         .notEmpty()
-        .withMessage("Vui lòng nhập lại mật khẩu !"),
-        check("confirmPassword")
+        .withMessage("Vui lòng nhập lại mật khẩu !")
         .isLength({ min: 6 })
         .withMessage("Mật khẩu nhập lại phải có ít nhất 6 kí tự !"),
     ],
     validateUpdateCart: [
-        check("quantity").notEmpty().withMessage("quantity is required"),
+        check("quantity").notEmpty().withMessage("Vui lòng nhập số lượng !"),
     ],
     validateAddToCart: [
-        check("product").notEmpty().withMessage("ID product is required"),
-        check("size").notEmpty().withMessage("Size is required"),
-        check("color").notEmpty().withMessage("Color is required"),
-        check("quantity").notEmpty().withMessage("Quantity is required"),
+        check("product").notEmpty().withMessage("Vui lòng nhập ID product !"),
+        check("size").notEmpty().withMessage("Vui lòng chọn kích thước !"),
+        check("color").notEmpty().withMessage("Vui lòng chọn màu sắc !"),
         check("quantity")
+        .notEmpty()
+        .withMessage("Vui lòng chọn số lượng !")
         .isNumeric({ min: 1 })
         .withMessage("Quantity is at least 1"),
     ],
     validateOrder: [
         check("fullName").notEmpty().withMessage("Vui lòng nhập họ và tên !"),
-        check("phone").notEmpty().withMessage("Vui lòng nhập số điện thoại !"),
-        check("city").notEmpty().withMessage("Vui lòng chọn tỉnh / thành phố !"),
+        check("phone")
+        .notEmpty()
+        .withMessage("Vui lòng nhập số điện thoại !")
+        .isNumeric()
+        .withMessage("Số điện thoại phải là kí tự số !")
+        .isLength({ min: 10 })
+        .withMessage("Số điện thoại tối thiếu 10 số !")
+        .isLength({ max: 10 })
+        .withMessage("Số điện thoại tối đa 10 số !"),
+        check("province")
+        .notEmpty()
+        .withMessage("Vui lòng chọn tỉnh / thành phố !"),
         check("district").notEmpty().withMessage("Vui lòng chọn quận / huyện !"),
-        check("wards").notEmpty().withMessage("Vui lòng chọn xã / phường !"),
+        check("ward").notEmpty().withMessage("Vui lòng chọn xã / phường !"),
         check("address").notEmpty().withMessage("Vui lòng nhập địa chỉ !"),
     ],
     isRequestValidated: (req, res, next) => {

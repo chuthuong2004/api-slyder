@@ -23,19 +23,42 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// * GET USER DETAILS
+// * GET MY PROFILE
 router.get(
-    "/me",
+    "/me/profile",
     middlewareController.verifyToken,
     userController.getUserDetailsV2
 );
 
-// * UPDATE USER
+// * UPDATE PROFILE
 router.put(
     "/me/update",
     middlewareController.verifyToken,
     upload.single("avatar"),
     userController.updateProfile
+);
+
+// ADD SHIPMENT DETAILS
+router.post(
+    "/me/shipment-detail",
+    middlewareController.verifyToken,
+    middlewareController.validateOrder,
+    middlewareController.isRequestValidated,
+    userController.addShipmentDetail
+);
+
+// UPDATE SHIPMENT DETAILS
+router.put(
+    "/me/shipment-detail/:id",
+    middlewareController.verifyToken,
+    userController.updateShipmentDetail
+);
+
+// REMOVE SHIPMENT DETAILS
+router.put(
+    "/me/shipment-detail/remove/:id",
+    middlewareController.verifyToken,
+    userController.removeShipmentDetail
 );
 
 // * FORGOT PASSWORD

@@ -1,7 +1,7 @@
 import { CartModel } from "../models/CartModel.js";
 import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
-import { UserModel } from "../models/UserModal.js";
+import { UserModel } from "../models/UserModel.js";
 import { sendEmail } from "../utils/sendMail.js";
 import msg from "../utils/messageEmail.js";
 import moment from "moment";
@@ -9,8 +9,15 @@ const orderController = {
     // * CREATE ORDER WITH USER CART
     newOrder: async(req, res) => {
         try {
-            const { fullName, phone, city, district, wards, address } = req.body;
-            const shippingInfo = { fullName, phone, city, district, wards, address }; // fullName, phone, city, district, wards, address
+            const { fullName, phone, province, district, ward, address } = req.body;
+            const shippingInfo = {
+                fullName,
+                phone,
+                province,
+                district,
+                ward,
+                address,
+            }; // fullName, phone, province, district, wards, address
             const paid = req.body.paid;
             let shippingPrice = req.body.shippingPrice;
             const cart = await CartModel.findOne({ user: req.user.id }).populate({
@@ -44,7 +51,16 @@ const orderController = {
             await cart.delete();
 
             // * Check price shipping
-            if (!shippingPrice) shippingPrice = 30000;
+            if (!shippingPrice) {
+                if (province.includes("Thành phố Hồ Chí Minh")) {
+                    if (ward.includes("Phường Hiệp Bình Phước")) shippingPrice = 0;
+                    else {
+                        shippingPrice = 10000;
+                    }
+                } else {
+                    shippingPrice = 30000;
+                }
+            }
             // * create new order model
             const newOrder = new OrderModel({
                 shippingInfo: shippingInfo,
@@ -67,8 +83,9 @@ const orderController = {
                     success: false,
                     message: "Không tìm thấy user !",
                 });
-            // * Push order vào user
-            await user.updateOne({ $push: { orders: newOrder._id } });
+            await user.updateOne({
+                $push: { orders: newOrder._id },
+            });
             var message = msg(
                 newOrder,
                 "Cảm ơn bạn đã đặt hàng !",
@@ -203,7 +220,7 @@ const orderController = {
                 options.message = msg(
                     order,
                     "Đơn hàng của bạn đang được giao",
-                    `đang được giao đến địa chỉ <b>${order.shippingInfo.address}, ${order.shippingInfo.wards}, ${order.shippingInfo.district}, ${order.shippingInfo.city}</b>`
+                    `đang được giao đến địa chỉ <b>${order.shippingInfo.address}, ${order.shippingInfo.ward}, ${order.shippingInfo.district}, ${order.shippingInfo.province}</b>`
                 );
             }
             order.orderStatus = req.body.orderStatus;

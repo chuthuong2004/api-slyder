@@ -2,7 +2,7 @@ import { CartModel } from "../models/CartModel.js";
 import { CategoryModel } from "../models/CategoryModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { ReviewModel } from "../models/ReviewModel.js";
-import { UserModel } from "../models/UserModal.js";
+import { UserModel } from "../models/UserModel.js";
 import { APIFeatures } from "../utils/pagination.js";
 const productController = {
     // ! GET ALL PRODUCT ----- PAGINATION
