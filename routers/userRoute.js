@@ -27,7 +27,7 @@ const upload = multer({ storage });
 router.get(
     "/me/profile",
     middlewareController.verifyToken,
-    userController.getUserDetailsV2
+    userController.getProfile
 );
 
 // * UPDATE PROFILE

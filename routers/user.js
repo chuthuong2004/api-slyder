@@ -53,11 +53,7 @@ router.delete(
 );
 
 // * GET USER DETAILS
-router.get(
-    "/me",
-    middlewareController.verifyToken,
-    userController.getUserDetails
-);
+router.get("/me", middlewareController.verifyToken, userController.getProfile);
 
 // * UPDATE USER
 router.put(

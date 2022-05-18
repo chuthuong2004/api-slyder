@@ -87,7 +87,7 @@ const userController = {
         }
     },
     // * GET USER DETAILS
-    getUserDetailsV2: async(req, res) => {
+    getProfile: async(req, res) => {
         try {
             const user = await UserModel.findById(req.user.id);
             if (!user)
