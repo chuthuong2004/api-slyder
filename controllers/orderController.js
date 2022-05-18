@@ -101,7 +101,13 @@ const orderController = {
             } catch (error) {
                 res.status(500).json({ error: error });
             }
-            return res.status(200).json({ success: true, order: newOrder });
+            return res
+                .status(200)
+                .json({
+                    success: true,
+                    message: "Đơn hàng của bạn đã đặt thành công !",
+                    order: newOrder,
+                });
         } catch (error) {
             res.status(500).json({ error: error });
         }
