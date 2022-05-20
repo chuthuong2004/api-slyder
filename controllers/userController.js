@@ -246,9 +246,15 @@ const userController = {
     removeShipmentDetail: async(req, res) => {
         try {
             var condition = {
-                user: req.user.id,
+                _id: req.user.id,
                 "shipmentDetails._id": req.params.id,
             };
+            const users = await UserModel.findOne(condition);
+            if (!users)
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy ID địa chỉ giao hàng !",
+                });
             var update = {
                 $pull: { shipmentDetails: { _id: req.params.id } },
             };
