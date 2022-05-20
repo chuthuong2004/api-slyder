@@ -249,12 +249,22 @@ const userController = {
                 _id: req.user.id,
                 "shipmentDetails._id": req.params.id,
             };
-            const users = await UserModel.findOne(condition);
-            if (!users)
+            const userCurrent = await UserModel.findById(condition);
+            if (!userCurrent)
                 return res.status(404).json({
                     success: false,
                     message: "Không tìm thấy ID địa chỉ giao hàng !",
                 });
+            const isDefault = userCurrent.shipmentDetails.find(
+                (shipment) =>
+                shipment._id == req.params.id && shipment.isDefault === true
+            );
+            if (isDefault) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Không thể xóa địa chỉ mặc định",
+                });
+            }
             var update = {
                 $pull: { shipmentDetails: { _id: req.params.id } },
             };
