@@ -148,10 +148,16 @@ const userController = {
                 address: req.body.address,
                 isDefault: req.body.isDefault,
             };
-            const user = await UserModel.findById(req.user.id);
+
+            if (req.body.isDefault) {
+                const updateUser = await UserModel.findOneAndUpdate({
+                    _id: req.user.id,
+                    "shipmentDetails.isDefault": req.body.isDefault,
+                }, { $set: { "shipmentDetails.$.isDefault": false } }, { new: true });
+            }
             let update;
+            const user = await UserModel.findById(req.user.id);
             if (!user.shipmentDetails) {
-                console.log("khoong");
                 update = { $set: { shipmentDetails: shipmentDetail } };
             } else {
                 const shipmentDetailItem = user.shipmentDetails.find(
@@ -187,12 +193,20 @@ const userController = {
         try {
             // const users = await UserModel.updateMany({}, { $set: { shipmentDetails: null } });
             // return res.status(200).json("OK");
+
             const user = await UserModel.findById(req.user.id);
             if (!user) {
                 return res
                     .status(404)
                     .json({ success: false, message: "Không tìm thấy user" });
             }
+            if (req.body.isDefault) {
+                const updateUser = await UserModel.findOneAndUpdate({
+                    _id: req.user.id,
+                    "shipmentDetails.isDefault": req.body.isDefault,
+                }, { $set: { "shipmentDetails.$.isDefault": false } }, { new: true });
+            }
+
             const shipmentDetail = user.shipmentDetails.find(
                 (item) => item._id == req.params.id
             );
