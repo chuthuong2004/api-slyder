@@ -49,9 +49,9 @@ const orderController = {
             });
             // * Delete cart
             await cart.delete();
-
             // * Check price shipping
             if (!shippingPrice) {
+                console.log("56");
                 if (province.includes("Thành phố Hồ Chí Minh")) {
                     if (ward.includes("Phường Hiệp Bình Phước")) shippingPrice = 0;
                     else {
@@ -69,8 +69,10 @@ const orderController = {
                 shippingPrice: shippingPrice,
                 totalPrice: totalPrice,
             });
+
             // * Save order
             await newOrder.save();
+
             if (paid) {
                 newOrder.paid = true;
                 newOrder.paidAt = Date.now();
@@ -83,9 +85,11 @@ const orderController = {
                     success: false,
                     message: "Không tìm thấy user !",
                 });
+
             await user.updateOne({
                 $push: { orders: newOrder._id },
             });
+
             var message = msg(
                 newOrder,
                 "Cảm ơn bạn đã đặt hàng !",
@@ -101,13 +105,11 @@ const orderController = {
             } catch (error) {
                 res.status(500).json({ error: error });
             }
-            return res
-                .status(200)
-                .json({
-                    success: true,
-                    message: "Đơn hàng của bạn đã đặt thành công !",
-                    order: newOrder,
-                });
+            return res.status(200).json({
+                success: true,
+                message: "Đơn hàng của bạn đã đặt thành công !",
+                order: newOrder,
+            });
         } catch (error) {
             res.status(500).json({ error: error });
         }
