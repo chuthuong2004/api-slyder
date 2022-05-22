@@ -1,3 +1,4 @@
+import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { ReviewModel } from "../models/ReviewModel.js";
 import { UserModel } from "../models/UserModel.js";
@@ -111,17 +112,19 @@ const reviewController = {
     },
     addReview: async(req, res) => {
         try {
-            var productsOrder = req.orderItems.map((item) => item.product.toString());
+            return res.status(200).json(req.orderItems);
 
+            var productsOrder = req.orderItems.map((item) => item.product.toString());
             const { content, product, star } = req.body;
             var infoProduct = req.orderItems.find(
-                (item) => item.product.toString() === product
+                (item) => item.product.toString() == product
             );
             const infoProductOrdered = {
                 color: infoProduct.color,
                 size: infoProduct.size,
                 quantity: infoProduct.quantity,
             };
+            console.log(127);
             const newReview = {
                 content: content,
                 product: product,
@@ -129,13 +132,16 @@ const reviewController = {
                 user: req.user.id,
                 infoProductOrdered: infoProductOrdered,
             };
+            console.log(134);
             let message = "Nhận xét của bạn đang chờ được kiểm duyệt !";
             if (req.isDelivered && productsOrder.includes(product)) {
+                console.log(137);
                 newReview.enable = true;
                 message = "Nhận xét sản phẩm thành công !";
             }
             const review = new ReviewModel(newReview);
             await review.save();
+            console.log(143);
             if (product) {
                 const prod = await ProductModel.findById(product);
                 const prodOfReview = await ReviewModel.find({
@@ -159,6 +165,77 @@ const reviewController = {
             res.status(200).json({
                 success: true,
                 message,
+                review,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+    addReviewV2: async(req, res) => {
+        try {
+            const order = await OrderModel.findOne({
+                user: req.user.id,
+                "orderItems._id": req.params.id,
+                orderStatus: "Delivered",
+            });
+            if (!order) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy đơn đặt hàng !",
+                });
+            }
+            const { content, product, star } = req.body;
+
+            var infoProduct = order.orderItems.find(
+                (item) => item.product == product
+            );
+            if (!infoProduct) {
+                return res
+                    .status(404)
+                    .json({ success: false, message: "Không tìm thấy order item !" });
+            }
+            const infoProductOrdered = {
+                color: infoProduct.color,
+                size: infoProduct.size,
+                quantity: infoProduct.quantity,
+            };
+
+            const newReview = {
+                content: content,
+                product: product,
+                star: star,
+                user: req.user.id,
+                infoProductOrdered: infoProductOrdered,
+                enable: true,
+            };
+            const review = new ReviewModel(newReview);
+            await review.save();
+            if (product) {
+                const prod = await ProductModel.findById(product);
+                const prodOfReview = await ReviewModel.find({
+                    product: product,
+                    enable: true,
+                });
+
+                const totalAmount = prodOfReview.reduce(
+                    (total, item) => total + item.star,
+                    0
+                );
+                const rate = totalAmount / prodOfReview.length;
+
+                await prod.updateOne({
+                    $push: { reviews: review._id },
+                    $set: { rate: rate },
+                });
+            }
+
+            if (req.user.id) {
+                const user = await UserModel.findById(req.user.id);
+                await user.updateOne({ $push: { reviews: review._id } });
+            }
+            res.status(200).json({
+                success: true,
+                message: "Đánh giá sản phẩm thành công !",
                 review,
             });
         } catch (error) {

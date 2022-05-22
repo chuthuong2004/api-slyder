@@ -21,10 +21,9 @@ router.get("/review/:id", reviewController.getAReview); //
 
 // * CREATE REVIEW ---  midleware để đã giao hàng mới được thêm nhận xét --DONE--
 router.post(
-    "/review/new",
+    "/review/new/:id",
     middlewareController.verifyToken,
-    middlewareController.verifyOrderDelivered,
-    reviewController.addReview
+    reviewController.addReviewV2
 ); // thêm mới 1 reviews
 
 // * UPDATE REVIEW

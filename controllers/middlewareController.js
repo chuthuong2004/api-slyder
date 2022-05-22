@@ -132,7 +132,9 @@ const middlewareController = {
     },
     verifyOrderDelivered: async(req, res, next) => {
         try {
-            const order = await OrderModel.findOne({ user: req.user.id });
+            const order = await OrderModel.findOne({
+                user: req.user.id,
+            });
             if (!order) {
                 console.log("Không có order");
                 req.isOrdered = false;
