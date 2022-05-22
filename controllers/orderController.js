@@ -3,6 +3,7 @@ import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { UserModel } from "../models/UserModel.js";
 import { sendEmail } from "../utils/sendMail.js";
+import { APIFeatures } from "../utils/pagination.js";
 import msg from "../utils/messageEmail.js";
 import moment from "moment";
 const orderController = {
@@ -139,7 +140,14 @@ const orderController = {
     // * GET MY ORDER
     myOrder: async(req, res) => {
         try {
-            const orders = await OrderModel.find({ user: req.user.id });
+            const features = new APIFeatures(
+                    OrderModel.find({ user: req.user.id }),
+                    req.query
+                )
+                .paginating()
+                .sorting()
+                .filtering();
+            const orders = await features.query;
             if (!orders)
                 return res.status(404).json({
                     success: false,
@@ -152,7 +160,9 @@ const orderController = {
             );
             res.status(200).json({
                 success: true,
+                countDocuments: orders.length,
                 totalAmount,
+                resultPerPage: req.query.limit * 1 || 0,
                 orders,
             });
         } catch (error) {
