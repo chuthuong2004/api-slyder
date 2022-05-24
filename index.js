@@ -24,25 +24,25 @@ app.use(cors());
 app.use(morgan("common"));
 
 // * ROUTES IMPORT
-import product from "./routers/product.js";
-import category from "./routers/category.js";
-import catalog from "./routers/catalog.js";
-import blog from "./routers/blog.js";
-import auth from "./routers/auth.js";
-import user from "./routers/user.js";
-import cart from "./routers/cart.js";
-import order from "./routers/order.js";
-import review from "./routers/review.js";
+import product from "./routes/product.js";
+import category from "./routes/category.js";
+import catalog from "./routes/catalog.js";
+import blog from "./routes/blog.js";
+import auth from "./routes/auth.js";
+import user from "./routes/user.js";
+import cart from "./routes/cart.js";
+import order from "./routes/order.js";
+import review from "./routes/review.js";
 
 // v2
-import productRoute from "./routers/productRoute.js";
-import categoryRoute from "./routers/categoryRoute.js";
-import catalogRoute from "./routers/catalogRoute.js";
-import userRoute from "./routers/userRoute.js";
-import blogRoute from "./routers/blogRoute.js";
-import cartRoute from "./routers/cartRoute.js";
-import orderRoute from "./routers/orderRoute.js";
-import reviewRoute from "./routers/reviewRoute.js";
+import productRoute from "./routes/productRoute.js";
+import categoryRoute from "./routes/categoryRoute.js";
+import catalogRoute from "./routes/catalogRoute.js";
+import userRoute from "./routes/userRoute.js";
+import blogRoute from "./routes/blogRoute.js";
+import cartRoute from "./routes/cartRoute.js";
+import orderRoute from "./routes/orderRoute.js";
+import reviewRoute from "./routes/reviewRoute.js";
 
 app.use("/api/v1", product);
 app.use("/api/v1", category);
