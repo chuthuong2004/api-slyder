@@ -1,6 +1,6 @@
 import express from "express";
 import catalogController from "../controllers/catalogController.js";
-import middlewareController from "../controllers/middlewareController.js";
+import middlewareController from "../middlewares/middlewareController.js";
 const router = express.Router();
 
 // * GET ALL CATALOG --- PAGINATION

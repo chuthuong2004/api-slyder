@@ -6,7 +6,7 @@ import moment from "moment";
 // import shortid from "shortid";
 import path from "path";
 import { fileURLToPath } from "url";
-import middlewareController from "../controllers/middlewareController.js";
+import middlewareController from "../middlewares/middlewareController.js";
 const __filename = fileURLToPath(
     import.meta.url);
 const __dirname = path.dirname(__filename);

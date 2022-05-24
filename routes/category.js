@@ -1,6 +1,6 @@
 import express from "express";
 import categoryController from "../controllers/categoryController.js";
-import middlewareController from "../controllers/middlewareController.js";
+import middlewareController from "../middlewares/middlewareController.js";
 const router = express.Router();
 
 import multer from "multer";

@@ -1,17 +1,31 @@
-import express from 'express';
-import authController from '../controllers/authController.js';
-import middlewareController from '../controllers/middlewareController.js';
+import express from "express";
+import authController from "../controllers/authController.js";
+import middlewareController from "../middlewares/middlewareController.js";
 const router = express.Router();
 
 // * REGISTER
-router.post('/auth/register', middlewareController.validateSignupRequest, middlewareController.isRequestValidated, authController.registerUser);
+router.post(
+    "/auth/register",
+    middlewareController.validateSignupRequest,
+    middlewareController.isRequestValidated,
+    authController.registerUser
+);
 
 // * SIGIN
-router.post('/auth/login', middlewareController.validateSigninRequest, middlewareController.isRequestValidated, authController.loginUser);
+router.post(
+    "/auth/login",
+    middlewareController.validateSigninRequest,
+    middlewareController.isRequestValidated,
+    authController.loginUser
+);
 
 // * REFRESH
-router.post('/auth/refresh', authController.requestRefreshToken)
+router.post("/auth/refresh", authController.requestRefreshToken);
 
 // * LOGOUT
-router.post('/auth/logout', middlewareController.verifyToken, authController.logoutUser);
+router.post(
+    "/auth/logout",
+    middlewareController.verifyToken,
+    authController.logoutUser
+);
 export default router;

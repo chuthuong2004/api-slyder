@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import middlewareController from "../controllers/middlewareController.js";
+import middlewareController from "../middlewares/middlewareController.js";
 import productController from "../controllers/productController.js";
 import multer from "multer";
 import path from "path";
