@@ -1,5 +1,4 @@
 import bcrypt from "bcrypt";
-import nodemailer from "nodemailer";
 import { BlogModel } from "../models/BlogModel.js";
 import { UserModel } from "../models/UserModel.js";
 import { sendEmail } from "../utils/sendMail.js";

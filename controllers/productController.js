@@ -3,7 +3,7 @@ import { CategoryModel } from "../models/CategoryModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { ReviewModel } from "../models/ReviewModel.js";
 import { UserModel } from "../models/UserModel.js";
-import { APIFeatures } from "../utils/pagination.js";
+import { APIFeatures } from "../utils/APIFeatures.js";
 const productController = {
     // ! GET ALL PRODUCT ----- PAGINATION
     getAllProduct: async(req, res) => {

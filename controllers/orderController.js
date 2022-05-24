@@ -3,7 +3,7 @@ import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { UserModel } from "../models/UserModel.js";
 import { sendEmail } from "../utils/sendMail.js";
-import { APIFeatures } from "../utils/pagination.js";
+import { APIFeatures } from "../utils/APIFeatures.js";
 import msg from "../utils/messageEmail.js";
 import moment from "moment";
 const orderController = {

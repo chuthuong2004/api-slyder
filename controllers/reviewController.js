@@ -2,7 +2,7 @@ import { OrderModel } from "../models/OrderModel.js";
 import { ProductModel } from "../models/ProductModel.js";
 import { ReviewModel } from "../models/ReviewModel.js";
 import { UserModel } from "../models/UserModel.js";
-import { APIFeatures } from "../utils/pagination.js";
+import { APIFeatures } from "../utils/APIFeatures.js";
 const reviewController = {
     getAllReview: async(req, res) => {
         try {
