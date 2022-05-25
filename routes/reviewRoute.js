@@ -9,15 +9,15 @@ router.get("/reviews", reviewController.getAllReview); //
 // * GET ALL REVIEWS BY ID PRODUCT
 router.get("/reviews/:idProduct", reviewController.getAllReviewV2ByProduct); //
 
-// * GET ALL REVIEWS --- ADMIN
-router.get(
-    "/reviews",
-    middlewareController.verifyTokenAndAdminAuth,
-    reviewController.getAdminReviews
-); //
-
 // * GET REVIEW
 router.get("/review/:id", reviewController.getAReview); //
+
+// GET MY REVIEWS
+router.get(
+    "/reviews/me",
+    middlewareController.verifyToken,
+    reviewController.getMyReview
+);
 
 // * CREATE REVIEW ---  midleware để đã giao hàng mới được thêm nhận xét --DONE--
 router.post(

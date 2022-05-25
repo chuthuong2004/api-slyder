@@ -260,10 +260,25 @@ const reviewController = {
             res.status(500).json({ error: error });
         }
     },
-
+    getMyReview: async(req, res) => {
+        try {
+            const reviews = await ReviewModel.find({ user: req.user.id });
+            if (!reviews) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy các đánh giá của bạn !",
+                });
+            }
+            res.status(200).json(reviews);
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
     // [DELETE] soft delete review
     destroyReview: async(req, res, next) => {
         try {
+            // const review =await ReviewModel.findOne();
+            // if()
             const destroyReview = await ReviewModel.delete({ _id: req.params.id });
             if (!destroyReview) {
                 res.status(404).json({
