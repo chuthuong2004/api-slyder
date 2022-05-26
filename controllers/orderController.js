@@ -137,6 +137,27 @@ const orderController = {
         }
     },
 
+    // * GET SINGLE ORDER
+    getSingleOrderV2: async(req, res) => {
+        try {
+            const order = await OrderModel.findOne({
+                _id: req.params.id,
+                user: req.user.id,
+            });
+            if (!order)
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy đơn đặt hàng với ID này !",
+                });
+            res.status(200).json({
+                success: true,
+                order,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+
     // * GET MY ORDER
     myOrder: async(req, res) => {
         try {

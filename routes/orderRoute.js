@@ -19,6 +19,13 @@ router.get(
     orderController.myOrder
 );
 
+// GET A ORDER v2
+router.get(
+    "/order/me/:id",
+    middlewareController.verifyToken,
+    orderController.getSingleOrderV2
+);
+
 // * GET SINGLE ORDER
 router.get(
     "/order/:id",
