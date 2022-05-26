@@ -233,6 +233,8 @@ const reviewController = {
                 const user = await UserModel.findById(req.user.id);
                 await user.updateOne({ $push: { reviews: review._id } });
             }
+            order.commented = true;
+            await order.save();
             res.status(200).json({
                 success: true,
                 message: "Đánh giá sản phẩm thành công !",

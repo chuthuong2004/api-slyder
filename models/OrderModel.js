@@ -110,5 +110,6 @@ const orderSchema = new mongoose.Schema({
         type: Date,
     },
     canceledReason: { type: String },
+    commented: { type: Boolean, default: false },
 }, { timestamps: true });
 export const OrderModel = mongoose.model("Order", orderSchema);
