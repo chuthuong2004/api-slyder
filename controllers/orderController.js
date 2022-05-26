@@ -225,6 +225,7 @@ const orderController = {
                         order.quantity
                     );
                 });
+                order.shippingAt = Date.now();
                 options.subject = "Đơn hàng tại LTH Store đang được vận chuyển";
                 options.message = msg(
                     order,
@@ -233,6 +234,7 @@ const orderController = {
                 );
             }
             if (req.body.orderStatus === "Delivery") {
+                order.deliveryAt = Date.now();
                 options.subject = "Đơn hàng tại LTH Store đang giao đến bạn !";
                 options.message = "đơn hàng của bạn đang giao";
                 options.message = msg(
@@ -271,6 +273,38 @@ const orderController = {
         }
     },
 
+    // * CANCEL ORDER
+    cancelOrder: async(req, res) => {
+        try {
+            const order = await OrderModel.findOne({
+                _id: req.params.id,
+                user: req.user.id,
+            });
+            if (!order) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy đơn đặt hàng của bạn",
+                });
+            }
+            if (order.orderStatus === "Processing") {
+                order.orderStatus = "Canceled";
+                order.canceledReason = req.body.reason;
+                order.canceledAt = Date.now();
+                order.save();
+                return res.status(200).json({
+                    success: true,
+                    message: "Đã hủy đơn hàng thành công !",
+                    order: order,
+                });
+            }
+            return res.status(400).json({
+                success: false,
+                message: "Không thể hủy đơn hàng, đơn đặt hàng của bạn đã được xử lý !",
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
     // * DELETE ORDER --- DONE
     deleteOrder: async(req, res) => {
         try {

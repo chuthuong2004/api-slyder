@@ -26,6 +26,13 @@ router.get(
     orderController.getSingleOrder
 );
 
+// CANCEL ORDER
+router.put(
+    "/order/cancel/:id",
+    middlewareController.verifyToken,
+    orderController.cancelOrder
+);
+
 // * GET ALL ORDERS --- ADMIN
 router.get(
     "/admin/orders",

@@ -88,7 +88,7 @@ const orderSchema = new mongoose.Schema({
     orderStatus: {
         type: String,
         required: true,
-        default: "Processing", // shipping, delivery, delivered
+        default: "Processing", // shipping, delivery, delivered, canceled
     },
     paid: {
         type: Boolean,
@@ -97,8 +97,18 @@ const orderSchema = new mongoose.Schema({
     paidAt: {
         type: Date,
     },
+    shippingAt: {
+        type: Date,
+    },
+    deliveryAt: {
+        type: Date,
+    },
     deliveredAt: {
         type: Date,
     },
+    canceledAt: {
+        type: Date,
+    },
+    canceledReason: { type: String },
 }, { timestamps: true });
 export const OrderModel = mongoose.model("Order", orderSchema);
