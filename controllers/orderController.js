@@ -276,7 +276,7 @@ const orderController = {
     // * CANCEL ORDER
     cancelOrder: async(req, res) => {
         try {
-            const order = await OrderModel.findOne({
+            var order = await OrderModel.findOne({
                 _id: req.params.id,
                 user: req.user.id,
             });
@@ -290,7 +290,7 @@ const orderController = {
                 order.orderStatus = "Canceled";
                 order.canceledReason = req.body.reason;
                 order.canceledAt = Date.now();
-                order.save();
+                await order.save({ validateBeforeSave: false });
                 return res.status(200).json({
                     success: true,
                     message: "Đã hủy đơn hàng thành công !",
