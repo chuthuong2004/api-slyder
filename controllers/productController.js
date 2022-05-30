@@ -414,7 +414,7 @@ const productController = {
             res.status(200).json({
                 success: true,
                 message: "Cập nhật sở thích thành công !",
-                prod,
+                product: prod,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -438,7 +438,7 @@ const productController = {
             res.status(200).json({
                 success: true,
                 message: "Cập nhật sở thích thành công !",
-                prod,
+                product: prod,
             });
         } catch (error) {
             res.status(500).json({ error: error });
