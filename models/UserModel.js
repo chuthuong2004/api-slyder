@@ -47,6 +47,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Order",
     }, ],
+    favorites: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+    }, ],
     shipmentDetails: [{
         fullName: {
             type: String,

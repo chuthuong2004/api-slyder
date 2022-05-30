@@ -383,6 +383,67 @@ const productController = {
             res.status(500).json({ error: error });
         }
     },
+    updateAllProduct: async(req, res) => {
+        try {
+            const product = await ProductModel.findByIdAndUpdate(
+                req.params.id, { detail: req.body.detail }, { new: true }
+            );
+            res.status(200).json(product);
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+    addFavorites: async(req, res) => {
+        try {
+            var product = await ProductModel.findById(req.params.id);
+            if (!product)
+                return res
+                    .status(404)
+                    .json({ success: false, message: "Không tìm thấy product" });
+            const prod = await ProductModel.findByIdAndUpdate(
+                req.params.id, { $addToSet: { favorites: req.user.id } }, { new: true }
+            );
+            console.log(prod.favorites.length);
+            prod.likeCount = prod.favorites.length;
+            await prod.save();
+            // product.update({ $push: { favorites: req.user.id } }, { new: true });
+            // product.save();
+            const user = await UserModel.findByIdAndUpdate(
+                req.user.id, { $addToSet: { favorites: req.params.id } }, { new: true }
+            );
+            res.status(200).json({
+                success: true,
+                message: "Cập nhật sở thích thành công !",
+                prod,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
+    removeFavorites: async(req, res) => {
+        try {
+            var product = await ProductModel.findById(req.params.id);
+            if (!product)
+                return res
+                    .status(404)
+                    .json({ success: false, message: "Không tìm thấy product" });
+            const prod = await ProductModel.findByIdAndUpdate(
+                req.params.id, { $pull: { favorites: req.user.id } }, { new: true }
+            );
+            prod.likeCount = prod.favorites.length;
+            await prod.save();
+            const user = await UserModel.findByIdAndUpdate(
+                req.user.id, { $pull: { favorites: req.params.id } }, { new: true }
+            );
+            res.status(200).json({
+                success: true,
+                message: "Cập nhật sở thích thành công !",
+                prod,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error });
+        }
+    },
 };
 
 export default productController;

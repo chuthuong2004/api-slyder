@@ -57,6 +57,10 @@ const productSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Review",
     }, ],
+    favorites: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    }, ],
     rate: {
         type: Number,
         default: 0,
