@@ -46,6 +46,7 @@ const productController = {
             const features = new APIFeatures(ProductModel.find(), req.query)
                 .paginating()
                 .sorting()
+                .searching()
                 .filtering();
 
             var products = await features.query;
@@ -134,6 +135,7 @@ const productController = {
     },
     // ! CREATE PRODCUCT --- HANDLE IMAGES ---DONE--- ----handle add many size, color and amount
     createProduct: async(req, res) => {
+        return res.status(200).json(req.body);
         try {
             const { color, size, amount, ...other } = req.body;
             let images = [];

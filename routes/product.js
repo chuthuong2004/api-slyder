@@ -42,7 +42,7 @@ router.get("/admin/product/:id", productController.getProductDetails);
 // ! CREATE PRODUCT --- ADMIN ---- Many size color
 router.post(
     "/admin/product/new",
-    middlewareController.verifyTokenAndAdminAuth,
+    // middlewareController.verifyTokenAndAdminAuth,
     upload.array("images"),
     productController.createProduct
 );

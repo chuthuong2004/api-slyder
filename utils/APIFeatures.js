@@ -16,8 +16,21 @@ export function APIFeatures(query, queryString) {
     };
 
     this.searching = () => {
-        var search = this.queryString.sort || "-createdAt";
-        this.query = this.query.sort(sort);
+        var search = this.queryString.search;
+        if (search) {
+            this.query = this.query.find({
+                $or: [
+                    { name: { $regex: new RegExp(".*" + search + ".*", "i") } },
+                    {
+                        keywords: {
+                            $regex: new RegExp(".*" + search + ".*", "i"),
+                        },
+                    },
+                ],
+            });
+        } else {
+            this.query = this.query.find();
+        }
         return this;
     };
     this.filtering = () => {
