@@ -43,15 +43,22 @@ const productController = {
     // GET ALL PRODUCT V2 APP
     getAllProductV2: async(req, res) => {
         try {
-            const features = new APIFeatures(ProductModel.find(), req.query)
+            const features1 = new APIFeatures(ProductModel.find(), req.query)
                 .paginating()
                 .sorting()
                 .searching()
                 .filtering();
+            const features2 = new APIFeatures(ProductModel.find(), req.query)
+                .sorting()
+                .searching()
+                .filtering();
 
-            var products = await features.query;
+            var products = await features1.query;
+
+            var products1 = await features2.query;
             res.status(200).json({
                 success: true,
+                documents: products1.length,
                 countDocuments: products.length,
                 resultPerPage: req.query.limit * 1 || 0,
                 products,
