@@ -10,7 +10,7 @@ router.get("/reviews", reviewController.getAllReview); //
 router.get(
     "/reviews",
     middlewareController.verifyTokenAndAdminAuth,
-    reviewController.getAdminReviews
+    reviewController.getAllReview
 ); //
 
 // * GET REVIEW

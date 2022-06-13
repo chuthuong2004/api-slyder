@@ -34,7 +34,7 @@ router.get("/blog/:id", blogController.getAblog);
 router.get(
     "/admin/blogs",
     middlewareController.verifyTokenAndAdminAuth,
-    blogController.getAdminBlog
+    blogController.getAllBlog
 );
 
 // * CREATE BLOG

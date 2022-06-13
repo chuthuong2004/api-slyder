@@ -5,36 +5,31 @@ import { ReviewModel } from "../models/ReviewModel.js";
 import { UserModel } from "../models/UserModel.js";
 import { APIFeatures } from "../utils/APIFeatures.js";
 const productController = {
-    // ! GET ALL PRODUCT ----- PAGINATION
+    // * GET ALL PRODUCT
     getAllProduct: async(req, res) => {
         try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const products = await ProductModel.find()
-                .skip(skip)
-                .limit(limit)
-                .populate({
-                    path: "category",
-                    populate: { path: "catalog" },
-                })
-                .populate({
-                    path: "reviews",
-                    populate: { path: "user" },
-                });
-            const productsCount = await ProductModel.countDocuments();
+            const features = new APIFeatures(
+                    ProductModel.find()
+                    .populate({
+                        path: "category",
+                        populate: { path: "catalog" },
+                    })
+                    .populate({
+                        path: "reviews",
+                        populate: { path: "user" },
+                    }),
+                    req.query
+                )
+                .paginating()
+                .sorting()
+                .searching()
+                .filtering();
+            const products = await features.query;
             res.status(200).json({
                 success: true,
-                countDocument: productsCount,
-                resultPerPage: limit,
-                products,
+                countDocument: products.length,
+                resultPerPage: req.query.limit * 1 || 0,
+                data: products,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -61,7 +56,7 @@ const productController = {
                 documents: products1.length,
                 countDocuments: products.length,
                 resultPerPage: req.query.limit * 1 || 0,
-                products,
+                data: products,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -81,7 +76,7 @@ const productController = {
                 success: true,
                 countDocuments: products.length,
                 resultPerPage: req.query.limit * 1 || 0,
-                products,
+                data: products,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -117,7 +112,7 @@ const productController = {
                 });
             res.status(200).json({
                 success: true,
-                product,
+                data: product,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -134,7 +129,7 @@ const productController = {
                 });
             res.status(200).json({
                 success: true,
-                product,
+                data: product,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -167,7 +162,7 @@ const productController = {
             });
             res.status(201).json({
                 success: true,
-                product: product,
+                data: product,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -200,7 +195,7 @@ const productController = {
             );
             res.status(200).json({
                 success: true,
-                product,
+                data: product,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -290,104 +285,6 @@ const productController = {
                     message: "Khôi phục sản phẩm thành công !",
                 });
             }
-        } catch (error) {
-            res.status(500).json({ error: error });
-        }
-    },
-    search: async(req, res) => {
-        try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            let search = req.query.q;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const products = await ProductModel.find({
-                    $or: [
-                        { name: { $regex: new RegExp(".*" + search + ".*", "i") } },
-                        {
-                            keywords: {
-                                $regex: new RegExp(".*" + search + ".*", "i"),
-                            },
-                        },
-                    ],
-                })
-                .skip(skip)
-                .limit(limit)
-                .populate({
-                    path: "category",
-                    populate: { path: "catalog" },
-                })
-                .populate({
-                    path: "reviews",
-                    populate: { path: "user" },
-                });
-            const countDocument = await ProductModel.countDocuments({
-                $or: [
-                    { name: { $regex: new RegExp(".*" + search + ".*", "i") } },
-                    {
-                        keywords: {
-                            $regex: new RegExp(".*" + search + ".*", "i"),
-                        },
-                    },
-                ],
-            });
-            res.status(200).json({
-                success: true,
-                countDocument,
-                resultPerPage: limit,
-                products: products,
-            });
-        } catch (error) {
-            res.status(500).json({ error: error });
-        }
-    },
-    searchV2: async(req, res) => {
-        try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            let search = req.query.q;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const products = await ProductModel.find({
-                    $or: [
-                        { name: { $regex: new RegExp(".*" + search + ".*", "i") } },
-                        {
-                            keywords: {
-                                $regex: new RegExp(".*" + search + ".*", "i"),
-                            },
-                        },
-                    ],
-                })
-                .skip(skip)
-                .limit(limit);
-            const countDocument = await ProductModel.countDocuments({
-                $or: [
-                    { name: { $regex: new RegExp(".*" + search + ".*", "i") } },
-                    {
-                        keywords: {
-                            $regex: new RegExp(".*" + search + ".*", "i"),
-                        },
-                    },
-                ],
-            });
-            res.status(200).json({
-                success: true,
-                countDocument,
-                resultPerPage: limit,
-                products: products,
-            });
         } catch (error) {
             res.status(500).json({ error: error });
         }

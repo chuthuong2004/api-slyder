@@ -7,26 +7,26 @@ const msg = (order, title, titleMessage, email) => {
     var html = "";
     order.orderItems.forEach((orderItem) => {
         html += `
-                            <tr>
-                                <td>
-                                    <img style="width:50px; height:80px; object-fit: cover;" src="${
-                                      orderItem.image
-                                    }" alt="">
-                                </td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${
-                                  orderItem.name
-                                } - ${orderItem.color} - ${orderItem.size}</td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${
-                                  orderItem.quantity
-                                }</td>
-                                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${(
-                                  orderItem.price -
-                                  orderItem.price * (orderItem.discount / 100)
-                                )
-                                  .toString()
-                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}đ</td>
-                            </tr>
-                            `;
+            <tr>
+                <td>
+                    <img style="width:50px; height:80px; object-fit: cover;" src="${
+                      orderItem.image
+                    }" alt="">
+                </td>
+                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${
+                  orderItem.name
+                } - ${orderItem.color} - ${orderItem.size}</td>
+                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${
+                  orderItem.quantity
+                }</td>
+                <td style="border: 1px solid #bdbdbd;border-collapse: collapse;padding: 4px 8px;">${(
+                  orderItem.price -
+                  orderItem.price * (orderItem.discount / 100)
+                )
+                  .toString()
+                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}đ</td>
+            </tr>
+        `;
     });
     var createdAt = moment(order.createdAt).format("DD/MM/YYYY HH:mm:ss");
     var totalPrice = order.totalPrice

@@ -6,31 +6,22 @@ import { APIFeatures } from "../utils/APIFeatures.js";
 const reviewController = {
     getAllReview: async(req, res) => {
         try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-
-            const reviews = await ReviewModel.find({ enable: true })
-                .skip(skip)
-                .limit(limit)
+            const features = await APIFeatures(
+                ReviewModel.find({ enable: true })
                 .populate({
                     path: "user",
                     populate: { path: "blogs" },
                 })
-                .populate("product");
-            const countDocument = await ReviewModel.countDocuments();
+                .populate("product"),
+                req.query
+            );
+
+            const reviews = await features.query;
             res.status(200).json({
                 success: true,
-                countDocument: countDocument,
-                resultPerPage: limit,
-                reviews,
+                countDocument: reviews.length,
+                resultPerPage: req.query.limit * 1 || 0,
+                data: reviews,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -53,39 +44,7 @@ const reviewController = {
                 success: true,
                 counDocuments: reviews.length,
                 resultPerPage: req.query.limit * 1 || 0,
-                reviews,
-            });
-        } catch (error) {
-            res.status(500).json({ error: error });
-        }
-    },
-    getAdminReviews: async(req, res) => {
-        try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-
-            const reviews = await ReviewModel.find()
-                .skip(skip)
-                .limit(limit)
-                .populate({
-                    path: "user",
-                    populate: { path: "blogs" },
-                })
-                .populate("product");
-            const countDocument = await ReviewModel.countDocuments();
-            res.status(200).json({
-                success: true,
-                countDocument: countDocument,
-                resultPerPage: limit,
-                reviews,
+                data: reviews,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -104,7 +63,7 @@ const reviewController = {
             }
             res.status(200).json({
                 success: true,
-                review,
+                data: review,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -112,8 +71,6 @@ const reviewController = {
     },
     addReview: async(req, res) => {
         try {
-            return res.status(200).json(req.orderItems);
-
             var productsOrder = req.orderItems.map((item) => item.product.toString());
             const { content, product, star } = req.body;
             var infoProduct = req.orderItems.find(
@@ -165,7 +122,7 @@ const reviewController = {
             res.status(200).json({
                 success: true,
                 message,
-                review,
+                data: review,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -238,7 +195,7 @@ const reviewController = {
             res.status(200).json({
                 success: true,
                 message: "Đánh giá sản phẩm thành công !",
-                review,
+                data: review,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -256,22 +213,34 @@ const reviewController = {
                     message: "Không tìm thấy nhận xét !",
                 });
             }
-            await review.save();
-            res.status(200).json(review);
+            res.status(200).json({
+                success: true,
+                message: "Cập nhật đánh giá thành công !",
+                data: review,
+            });
         } catch (err) {
             res.status(500).json({ error: error });
         }
     },
     getMyReview: async(req, res) => {
         try {
-            const reviews = await ReviewModel.find({ user: req.user.id });
+            const features = new APIFeatures(
+                ReviewModel.find({ user: req.user.id }),
+                req.query
+            );
+            const reviews = await features.query;
             if (!reviews) {
                 return res.status(404).json({
                     success: false,
                     message: "Không tìm thấy các đánh giá của bạn !",
                 });
             }
-            res.status(200).json(reviews);
+            res.status(200).json({
+                success: true,
+                countDocument: reviews.length,
+                resultPerPage: req.query.limit * 1 || 0,
+                data: reviews,
+            });
         } catch (error) {
             res.status(500).json({ error: error });
         }

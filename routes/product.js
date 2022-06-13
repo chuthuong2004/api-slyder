@@ -77,5 +77,4 @@ router.delete(
     productController.forceDestroyProduct
 );
 
-router.get("/products/search", productController.search);
 export default router;

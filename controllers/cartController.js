@@ -1,23 +1,13 @@
 import { CartModel } from "../models/CartModel.js";
 import { UserModel } from "../models/UserModel.js";
+import { APIFeatures } from "../utils/APIFeatures.js";
 
 const cartController = {
     // * GET ALL CART
     getAllCart: async(req, res) => {
         try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const carts = await CartModel.find()
-                .skip(skip)
-                .limit(limit)
+            const features = new APIFeatures(
+                CartModel.find()
                 .populate({
                     path: "user",
                     select: "_id username email isAdmin ",
@@ -25,13 +15,15 @@ const cartController = {
                 .populate({
                     path: "cartItems",
                     populate: { path: "product" }, // select: '_id name price discount'
-                });
-            const countDocument = await CartModel.countDocuments();
+                }),
+                req.query
+            );
+            const carts = await features.query;
             res.status(200).json({
                 success: true,
-                countDocument,
-                resultPerPage: limit,
-                carts,
+                countDocument: carts.length,
+                resultPerPage: req.query.limit * 1 || 0,
+                data: carts,
             });
         } catch (err) {
             res.status(500).json({ error: err });
@@ -52,7 +44,7 @@ const cartController = {
                         select: "_id name price discount images",
                     },
                 });
-            res.status(200).json({ success: true, cart });
+            res.status(200).json({ success: true, data: cart });
         } catch (err) {
             res.status(500).json({ error: err });
         }
@@ -160,7 +152,7 @@ const cartController = {
                 return res.status(200).json({
                     success: true,
                     message: "Thêm giỏ hàng thành công !",
-                    cart: newCart,
+                    data: newCart,
                 });
             } else {
                 // nếu user chưa có cart thì thêm mới 1 cart cho user
@@ -258,7 +250,7 @@ const cartController = {
                     return res.status(200).json({
                         success: true,
                         message: "Cập nhật giỏ hàng thành công !",
-                        cart: newCart,
+                        data: newCart,
                     });
                 }
                 return res.status(404).json({
@@ -329,7 +321,7 @@ const cartController = {
                     return res.status(200).json({
                         success: true,
                         message: "Cập nhật giỏ hàng thành công !",
-                        cart: newCart,
+                        data: newCart,
                     });
                 } else {
                     return res.status(200).json({

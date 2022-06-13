@@ -52,7 +52,6 @@ const orderController = {
             await cart.delete();
             // * Check price shipping
             if (!shippingPrice) {
-                console.log("56");
                 if (province.includes("Thành phố Hồ Chí Minh")) {
                     if (ward.includes("Phường Hiệp Bình Phước")) shippingPrice = 0;
                     else {
@@ -109,7 +108,7 @@ const orderController = {
             return res.status(200).json({
                 success: true,
                 message: "Đơn hàng của bạn đã đặt thành công !",
-                order: newOrder,
+                data: newOrder,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -130,7 +129,7 @@ const orderController = {
                 });
             res.status(200).json({
                 success: true,
-                order,
+                data: order,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -151,7 +150,7 @@ const orderController = {
                 });
             res.status(200).json({
                 success: true,
-                order,
+                data: order,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -181,10 +180,10 @@ const orderController = {
             );
             res.status(200).json({
                 success: true,
-                countDocuments: orders.length,
+                countDocument: orders.length,
                 totalAmount,
                 resultPerPage: req.query.limit * 1 || 0,
-                orders,
+                data: orders,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -194,24 +193,16 @@ const orderController = {
     // * GET ALL ORDERS
     getAllOrders: async(req, res) => {
         try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const orders = await OrderModel.find()
-                .skip(skip)
-                .limit(limit)
+            const features = new APIFeatures(
+                OrderModel.find()
                 .populate({
                     path: "orderItems",
                     populate: { path: "product" },
                 })
-                .populate("user");
+                .populate("user"),
+                req.query
+            );
+            const orders = await features.query;
             // tổng tiền tất cả đơn hàng
             const totalAmount = orders.reduce(
                 (total, order) => total + (order.totalPrice + order.shippingPrice),
@@ -221,9 +212,9 @@ const orderController = {
             res.status(200).json({
                 success: true,
                 totalAmount,
-                countDocument,
-                resultPerPage: limit,
-                orders,
+                countDocument: orders.length,
+                resultPerPage: req.query.limit * 1 || 0,
+                data: orders,
             });
         } catch (error) {
             res.status(500).json({ error: error });

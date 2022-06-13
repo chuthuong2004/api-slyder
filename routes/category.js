@@ -34,7 +34,7 @@ router.get("/category/:id", categoryController.getCategoryDetails);
 router.get(
     "/admin/categories",
     middlewareController.verifyTokenAndAdminAuth,
-    categoryController.getAdminCategories
+    categoryController.getAllCategory
 );
 
 // * CREATE CATEGORY --- ADMIN

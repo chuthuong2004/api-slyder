@@ -12,9 +12,6 @@ router.get("/product/:id", productController.getProductDetailsV2);
 // * GET ALL PRODUCT BY CATEGORY
 router.get("/products/:idCate", productController.getAllProductByCategory);
 
-// * SEARCH PRODUCTS
-router.get("/products/search", productController.searchV2);
-
 // * UPDATE PRODUCTS FAVORITES
 router.put(
     "/products/favorite/add/:id",
@@ -26,6 +23,4 @@ router.put(
     middlewareController.verifyToken,
     productController.removeFavorites
 );
-
-// router.put("/products/update/:id", productController.updateAllProduct);
 export default router;

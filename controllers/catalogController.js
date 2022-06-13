@@ -1,25 +1,13 @@
 import { CatalogModel } from "../models/CatalogModel.js";
 import { CategoryModel } from "../models/CategoryModel.js";
+import { APIFeatures } from "../utils/APIFeatures.js";
 
 const catalogController = {
     // * GET ALL CATALOG --- PAGINATION
     getAllCatalog: async(req, res) => {
         try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const catalogsCount = await CatalogModel.countDocuments();
-            const catalogs = await CatalogModel.find()
-                .skip(skip)
-                .limit(limit)
-                .populate({
+            const features = new APIFeatures(
+                CatalogModel.find().populate({
                     path: "categories",
                     populate: {
                         path: "products",
@@ -28,12 +16,15 @@ const catalogController = {
                             populate: { path: "user" },
                         },
                     },
-                });
+                }),
+                req.query
+            );
+            const catalogs = await features.query;
             res.status(200).json({
                 success: true,
-                catalogsCount,
-                resultPerPage: limit,
-                catalogs,
+                countDocument: catalogs.length,
+                resultPerPage: req.query.limit * 1 || 0,
+                data: catalogs,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -42,61 +33,13 @@ const catalogController = {
 
     getAllCatalogV2: async(req, res) => {
         try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const catalogsCount = await CatalogModel.countDocuments();
-            const catalogs = await CatalogModel.find().skip(skip).limit(limit);
+            const features = new APIFeatures(CatalogModel.find(), req.query);
+            const catalogs = await features.query;
             res.status(200).json({
                 success: true,
-                catalogsCount,
-                resultPerPage: limit,
-                catalogs,
-            });
-        } catch (error) {
-            res.status(500).json({ error: error });
-        }
-    },
-
-    // * GET ALL CATALOGS --- ADMIN
-    getAdminCatalogs: async(req, res) => {
-        try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const catalogs = await CatalogModel.find()
-                .skip(skip)
-                .limit(limit)
-                .populate({
-                    path: "categories",
-                    populate: {
-                        path: "products",
-                        populate: {
-                            path: "reviews",
-                            populate: { path: "user" },
-                        },
-                    },
-                });
-            const countDocument = await CatalogModel.countDocuments();
-            res.status(200).json({
-                success: true,
-                countDocument,
-                resultPerPage: limit,
-                catalogs,
+                countDocument: catalogs.length,
+                resultPerPage: req.query.limit * 1 || 0,
+                data: catalogs,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -115,7 +58,7 @@ const catalogController = {
             });
             res.status(200).json({
                 success: true,
-                catalog,
+                data: catalog,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -127,7 +70,7 @@ const catalogController = {
             const catalog = await CatalogModel.findById(req.params.id);
             res.status(200).json({
                 success: true,
-                catalog,
+                data: catalog,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -141,7 +84,7 @@ const catalogController = {
             await catalog.save();
             return res.status(200).json({
                 success: true,
-                catalog,
+                data: catalog,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -157,7 +100,7 @@ const catalogController = {
             );
             res.status(200).json({
                 success: true,
-                catalog,
+                data: catalog,
             });
         } catch (error) {
             res.status(500).json({ error: error });

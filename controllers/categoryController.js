@@ -6,32 +6,23 @@ const categoryController = {
     // * GET ALL CATEGORIES --- PAGINATION
     getAllCategory: async(req, res) => {
         try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const categoriesCount = await CategoryModel.countDocuments();
-            const categories = await CategoryModel.find()
-                .skip(skip)
-                .limit(limit)
+            const features = new APIFeatures(
+                CategoryModel.find()
                 .populate({
                     path: "catalog",
                 })
                 .populate({
                     path: "products",
                     populate: { path: "reviews" },
-                });
+                }),
+                req.query
+            );
+            const categories = await features.query;
             res.status(200).json({
                 success: true,
-                countDocument: categoriesCount,
-                resultPerPage: limit,
-                categories,
+                countDocument: categories.length,
+                resultPerPage: req.query.limit * 1 || 0,
+                data: categories,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -48,9 +39,9 @@ const categoryController = {
             var categories = await features.query;
             res.status(200).json({
                 success: true,
-                countDocuments: categories.length,
+                countDocument: categories.length,
                 resultPerPage: req.query.limit * 1 || 0,
-                categories,
+                data: categories,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -74,7 +65,7 @@ const categoryController = {
                 });
             res.status(200).json({
                 success: true,
-                category,
+                data: category,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -92,42 +83,7 @@ const categoryController = {
                 });
             res.status(200).json({
                 success: true,
-                category,
-            });
-        } catch (error) {
-            res.status(500).json({ error: error });
-        }
-    },
-
-    // * GET ALL CATEGORIES --- ADMIN
-    getAdminCategories: async(req, res) => {
-        try {
-            var page = req.query.page * 1;
-            var limit = req.query.limit * 1;
-            if ((limit && !page) || (page == 0 && limit == 0)) {
-                page = 1;
-            }
-            if (!page && !limit) {
-                page = 1;
-                limit = 0;
-            }
-            var skip = (page - 1) * limit;
-            const categoriesCount = await CategoryModel.countDocuments();
-            const categories = await CategoryModel.find()
-                .skip(skip)
-                .limit(limit)
-                .populate({
-                    path: "catalog",
-                })
-                .populate({
-                    path: "products",
-                    populate: { path: "reviews" },
-                });
-            res.status(200).json({
-                success: true,
-                countDocument: categoriesCount,
-                resultPerPage: limit,
-                categories,
+                data: category,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -156,7 +112,7 @@ const categoryController = {
             }
             res.status(200).json({
                 success: true,
-                category,
+                data: category,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -189,7 +145,7 @@ const categoryController = {
 
             res.status(200).json({
                 success: true,
-                category,
+                data: category,
             });
         } catch (error) {
             res.status(500).json({ error: error });

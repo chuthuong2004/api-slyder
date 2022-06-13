@@ -10,7 +10,7 @@ router.get("/catalogs", catalogController.getAllCatalog);
 router.get(
     "/admin/catalogs",
     middlewareController.verifyTokenAndAdminAuth,
-    catalogController.getAdminCatalogs
+    catalogController.getAllCatalog
 );
 
 // * GET CATALOG DETAILS
