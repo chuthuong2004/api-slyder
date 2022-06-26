@@ -152,7 +152,7 @@ const cartController = {
                 return res.status(200).json({
                     success: true,
                     message: "Thêm giỏ hàng thành công !",
-                    newCart,
+                    cart: newCart,
                 });
             } else {
                 // nếu user chưa có cart thì thêm mới 1 cart cho user
@@ -250,7 +250,7 @@ const cartController = {
                     return res.status(200).json({
                         success: true,
                         message: "Cập nhật giỏ hàng thành công !",
-                        newCart,
+                        cart: newCart,
                     });
                 }
                 return res.status(404).json({
@@ -321,7 +321,7 @@ const cartController = {
                     return res.status(200).json({
                         success: true,
                         message: "Cập nhật giỏ hàng thành công !",
-                        newCart,
+                        cart: newCart,
                     });
                 } else {
                     return res.status(200).json({
