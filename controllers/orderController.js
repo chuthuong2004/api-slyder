@@ -305,9 +305,6 @@ const orderController = {
                 order.orderStatus = "Canceled";
                 order.canceledReason = req.body.reason;
                 order.canceledAt = Date.now();
-
-                await order.save({ validateBeforeSave: false });
-
                 options.subject = "Đơn hàng tại LTH Store đã được hủy thành công !";
                 options.message = msg(
                     order,
@@ -316,7 +313,12 @@ const orderController = {
             "DD/MM/YYYY HH:mm:ss"
           )}`
                 );
-                await sendEmail(options);
+                try {
+                    await sendEmail(options);
+                } catch (error) {
+                    return res.status(500).json({ error: error });
+                }
+                await order.save({ validateBeforeSave: false });
 
                 return res.status(200).json({
                     success: true,
