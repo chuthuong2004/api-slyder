@@ -108,7 +108,7 @@ const orderController = {
             return res.status(200).json({
                 success: true,
                 message: "Đơn hàng của bạn đã đặt thành công !",
-                data: newOrder,
+                newOrder,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -129,7 +129,7 @@ const orderController = {
                 });
             res.status(200).json({
                 success: true,
-                data: order,
+                order,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -150,7 +150,7 @@ const orderController = {
                 });
             res.status(200).json({
                 success: true,
-                data: order,
+                order,
             });
         } catch (error) {
             res.status(500).json({ error: error });

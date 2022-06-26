@@ -58,7 +58,7 @@ const catalogController = {
             });
             res.status(200).json({
                 success: true,
-                data: catalog,
+                catalog,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -70,7 +70,7 @@ const catalogController = {
             const catalog = await CatalogModel.findById(req.params.id);
             res.status(200).json({
                 success: true,
-                data: catalog,
+                catalog,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -84,7 +84,7 @@ const catalogController = {
             await catalog.save();
             return res.status(200).json({
                 success: true,
-                data: catalog,
+                catalog,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -100,7 +100,7 @@ const catalogController = {
             );
             res.status(200).json({
                 success: true,
-                data: catalog,
+                catalog,
             });
         } catch (error) {
             res.status(500).json({ error: error });

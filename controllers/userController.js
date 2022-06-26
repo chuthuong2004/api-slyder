@@ -46,7 +46,7 @@ const userController = {
             }
             res.status(200).json({
                 success: true,
-                data: user,
+                user,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -69,7 +69,7 @@ const userController = {
             }
             res.status(200).json({
                 success: true,
-                data: user,
+                user,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -85,7 +85,7 @@ const userController = {
                     .json({ success: false, message: "Không tìm thấy người dùng !" });
             res.status(200).json({
                 success: true,
-                data: user,
+                user,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -120,7 +120,7 @@ const userController = {
             res.status(200).json({
                 success: true,
                 message: "Cập nhật thông tin cá nhân thành công !",
-                data: user,
+                user,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -172,7 +172,7 @@ const userController = {
             res.status(200).json({
                 success: true,
                 message: "Thêm thông tin giao hàng thành công !",
-                data: updated,
+                updated,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -226,7 +226,7 @@ const userController = {
             res.status(200).json({
                 success: true,
                 message: "Cập nhật thông tin giao hàng thành công !",
-                data: updateUser,
+                updateUser,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -263,7 +263,7 @@ const userController = {
             return res.status(200).json({
                 success: true,
                 message: "Xóa thông tin giao hàng thành công ",
-                data: user,
+                user,
             });
         } catch (error) {
             res.status(500).json({ error: error });

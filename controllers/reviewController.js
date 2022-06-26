@@ -63,7 +63,7 @@ const reviewController = {
             }
             res.status(200).json({
                 success: true,
-                data: review,
+                review,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -122,7 +122,7 @@ const reviewController = {
             res.status(200).json({
                 success: true,
                 message,
-                data: review,
+                review,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -195,7 +195,7 @@ const reviewController = {
             res.status(200).json({
                 success: true,
                 message: "Đánh giá sản phẩm thành công !",
-                data: review,
+                review,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -216,7 +216,7 @@ const reviewController = {
             res.status(200).json({
                 success: true,
                 message: "Cập nhật đánh giá thành công !",
-                data: review,
+                review,
             });
         } catch (err) {
             res.status(500).json({ error: error });
@@ -239,7 +239,7 @@ const reviewController = {
                 success: true,
                 countDocument: reviews.length,
                 resultPerPage: req.query.limit * 1 || 0,
-                data: reviews,
+                reviews,
             });
         } catch (error) {
             res.status(500).json({ error: error });

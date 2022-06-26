@@ -44,7 +44,7 @@ const cartController = {
                         select: "_id name price discount images",
                     },
                 });
-            res.status(200).json({ success: true, data: cart });
+            res.status(200).json({ success: true, cart });
         } catch (err) {
             res.status(500).json({ error: err });
         }
@@ -152,7 +152,7 @@ const cartController = {
                 return res.status(200).json({
                     success: true,
                     message: "Thêm giỏ hàng thành công !",
-                    data: newCart,
+                    newCart,
                 });
             } else {
                 // nếu user chưa có cart thì thêm mới 1 cart cho user
@@ -250,7 +250,7 @@ const cartController = {
                     return res.status(200).json({
                         success: true,
                         message: "Cập nhật giỏ hàng thành công !",
-                        data: newCart,
+                        newCart,
                     });
                 }
                 return res.status(404).json({
@@ -321,7 +321,7 @@ const cartController = {
                     return res.status(200).json({
                         success: true,
                         message: "Cập nhật giỏ hàng thành công !",
-                        data: newCart,
+                        newCart,
                     });
                 } else {
                     return res.status(200).json({

@@ -65,7 +65,7 @@ const categoryController = {
                 });
             res.status(200).json({
                 success: true,
-                data: category,
+                category,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -83,7 +83,7 @@ const categoryController = {
                 });
             res.status(200).json({
                 success: true,
-                data: category,
+                category,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -112,7 +112,7 @@ const categoryController = {
             }
             res.status(200).json({
                 success: true,
-                data: category,
+                category,
             });
         } catch (error) {
             res.status(500).json({ error: error });
@@ -145,7 +145,7 @@ const categoryController = {
 
             res.status(200).json({
                 success: true,
-                data: category,
+                category,
             });
         } catch (error) {
             res.status(500).json({ error: error });
