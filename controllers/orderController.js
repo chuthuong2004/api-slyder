@@ -323,7 +323,6 @@ const orderController = {
                 return res.status(200).json({
                     success: true,
                     message: "Đã hủy đơn hàng thành công !",
-                    order: order,
                 });
             }
             return res.status(400).json({
