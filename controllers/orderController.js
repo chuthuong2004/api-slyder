@@ -309,13 +309,18 @@ const orderController = {
                     message: msg(
                         order,
                         "Đơn hàng của bạn đã hủy thành công !",
-                        `đã được hủy thành công ngày ${moment(order.deliveredAt).format(
+                        `đã được hủy thành công ngày ${moment(order.canceledAt).format(
               "DD/MM/YYYY HH:mm:ss"
             )}`
                     ),
                 };
+
+                try {
+                    await sendEmail(options);
+                } catch (error) {
+                    res.status(500).json({ error: error });
+                }
                 await order.save({ validateBeforeSave: false });
-                await sendEmail(options);
                 return res.status(200).json({
                     success: true,
                     message: "Đã hủy đơn hàng thành công !",
