@@ -307,7 +307,13 @@ const orderController = {
                 order.canceledAt = Date.now();
 
                 options.subject = "Đơn hàng tại LTH Store đã được hủy thành công !";
-                options.message = "OK";
+                options.message = msg(
+                    order,
+                    "Đơn hàng của bạn đã hủy thành công !",
+                    `đã được hủy thành công ngày ${moment(order.canceledAt).format(
+            "DD/MM/YYYY HH:mm:ss"
+          )}`
+                );
                 await sendEmail(options);
 
                 await order.save({ validateBeforeSave: false });
