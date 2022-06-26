@@ -291,7 +291,7 @@ const orderController = {
             var order = await OrderModel.findOne({
                 _id: req.params.id,
                 user: req.user.id,
-            });
+            }).populate("user", "username email");
             if (!order) {
                 return res.status(404).json({
                     success: false,

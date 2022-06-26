@@ -33,28 +33,6 @@ router.get(
     orderController.getSingleOrder
 );
 
-// * GET ALL ORDERS --- ADMIN
-router.get(
-    "/admin/orders",
-    middlewareController.verifyTokenAndAdminAuth,
-    orderController.getAllOrders
-);
-
-// * UPDATE ORDER --- ADMIN ---- design send mail
-router.put(
-    "/admin/order/:id",
-    middlewareController.verifyTokenAndAdminAuth,
-    middlewareController.checkStatusOrder,
-    orderController.updateOrder
-);
-
-// * DELETE ORDER --- ADMIN
-router.delete(
-    "/admin/order/:id",
-    middlewareController.verifyTokenAndAdminAuth,
-    orderController.deleteOrder
-);
-
 // CANCEL ORDER
 router.put(
     "/order/cancel/:id",
