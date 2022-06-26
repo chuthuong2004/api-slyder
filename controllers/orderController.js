@@ -275,7 +275,7 @@ const orderController = {
                 );
             }
             await order.save({ validateBeforeSave: false });
-            sendEmail(options);
+            await sendEmail(options);
             res.status(200).json({
                 success: true,
                 message: "Đã cập nhật đơn hàng thành công !",
@@ -298,11 +298,24 @@ const orderController = {
                     message: "Không tìm thấy đơn đặt hàng của bạn",
                 });
             }
+
             if (order.orderStatus === "Processing") {
                 order.orderStatus = "Canceled";
                 order.canceledReason = req.body.reason;
                 order.canceledAt = Date.now();
+                var options = {
+                    email: order.user.email,
+                    subject: "Đơn hàng tại LTH Store đã được hủy thành công !",
+                    message: msg(
+                        order,
+                        "Đơn hàng của bạn đã hủy thành công !",
+                        `đã được hủy thành công ngày ${moment(order.deliveredAt).format(
+              "DD/MM/YYYY HH:mm:ss"
+            )}`
+                    ),
+                };
                 await order.save({ validateBeforeSave: false });
+                await sendEmail(options);
                 return res.status(200).json({
                     success: true,
                     message: "Đã hủy đơn hàng thành công !",
