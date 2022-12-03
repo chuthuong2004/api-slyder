@@ -48,7 +48,6 @@ const orderController = {
           product: cartItem.product._id,
         };
       });
-      // * Delete cart
       await cart.delete();
       // * Check price shipping
       if (!shippingPrice) {
