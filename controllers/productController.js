@@ -143,7 +143,7 @@ const productController = {
       let images = [];
       if (req.files.length > 0) {
         images = req.files.map((file) => {
-          return { img: process.env.API + "public/products/" + file.filename };
+          return { img: "/public/products/" + file.filename };
         });
       }
       let detail = [];
